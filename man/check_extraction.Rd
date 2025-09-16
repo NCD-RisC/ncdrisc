@@ -7,7 +7,7 @@
 check_extraction(dataset)
 }
 \arguments{
-\item{dataset}{data frame of extraction to be checked: can be a single study or multiple.}
+\item{dataset}{data frame of extraction to be checked: can be a single study or multiple studies.}
 }
 \description{
 This function checks formatted extractions and print out error, check and caution messages

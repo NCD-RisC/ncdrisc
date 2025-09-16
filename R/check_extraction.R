@@ -14,7 +14,8 @@
 #' Checks are usually issues that need amending and they are produced together in single run.
 #' Cautions may not be a problem; they highlight something that require an active check and
 #' decision to ignore.
-#' @param dataset data frame of extraction to be checked: can be a single study or multiple.
+#'
+#' @param dataset data frame of extraction to be checked: can be a single study or multiple studies.
 #' @return NULL
 #' @export
 check_extraction <- function(dataset) {

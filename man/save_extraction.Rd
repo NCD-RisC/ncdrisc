@@ -2,9 +2,7 @@
 % Please edit documentation in R/save_extraction.R
 \name{save_extraction}
 \alias{save_extraction}
-\title{Function to save extraction
-This function adds user information to extracted data, save extraction logs and save formatted extractions.
-It has to be run from the study folder.}
+\title{Function to save extraction}
 \usage{
 save_extraction(
   data,
@@ -22,7 +20,6 @@ save_extraction(
 \item{extracted_data_dir}{location of extracted survey folder}
 }
 \description{
-Function to save extraction
 This function adds user information to extracted data, save extraction logs and save formatted extractions.
 It has to be run from the study folder.
 }

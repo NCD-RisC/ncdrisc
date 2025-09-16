@@ -1,7 +1,9 @@
 
 #' Function to save extraction
+#'
 #' This function adds user information to extracted data, save extraction logs and save formatted extractions.
 #' It has to be run from the study folder.
+#'
 #' @param data data frame to be saved
 #' @param filename name of files to be saved. Use the format "Country Study_name Year_duration". For example:
 #'                 "USA NHANES 2005-2016"
