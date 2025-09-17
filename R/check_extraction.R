@@ -342,5 +342,4 @@ check_extraction <- function(dataset) {
 
     print("DONE", "yellow")
   }
-  return(NULL)
 }
