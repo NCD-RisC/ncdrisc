@@ -6,6 +6,7 @@
 # ABP March 2025: Corrected line 125 to avoid error caused by only one variable of the pairs available
 # BZ March 2025: corrected condition for pair wise comparison where integer overflow happened when multiplying two large Ns
 # BZ March 2025: added checks for empty strings or 'NA' strings in variable values; added check for unique values in metadata columns; added more comments
+# FD September 2025: added checks for hb altitude adjustment
 
 #' Function to check extractions before saving
 #'
@@ -279,6 +280,59 @@ check_extraction <- function(dataset) {
     if (any(tmpcheck$na)) {
       print("CHECK - recode NA stored as string to NA:", "br_red")
       print(rownames(tmpcheck)[tmpcheck$na], indent = 2)
+    }
+
+    # Check if hb columns exist then requires_hb_adjustment must exist
+    hb_columns <- c("hb", "hb1", "hb2", "adj_hb", "adj_hb1", "adj_hb2")
+    existing_hb_columns <- intersect(hb_columns, names(dat))
+    if (length(existing_hb_columns) > 0) {
+      if (!"requires_hb_adjustment" %in% names(dat)) {
+        print("CHECK - hb columns present but requires_hb_adjustment missing:", "br_red")
+        print(existing_hb_columns, indent = 2)
+      }
+    }
+
+    # Check country against high altitude countries list
+    if ("requires_hb_adjustment" %in% names(dat)) {
+      tryCatch({
+        high_altitude_countries <- read.csv("S:/Projects/HeightProject/Original dataset/Anaemia/altitude info/high_altitude_countries.csv")
+        current_iso <- unique(dat$iso)[1]
+        is_high_altitude <- current_iso %in% high_altitude_countries$iso3
+        current_requires_adjustment <- unique(dat$requires_hb_adjustment)[1]
+
+        if (is_high_altitude && current_requires_adjustment != 1) {
+          print("CAUTION - country is in the list of countries that require hb altitude adjustment but requires_hb_adjustment was set to 0:", "br_violet")
+          print(paste("ISO:", current_iso, "- is this a community study in a low altitude area?"), indent = 2)
+        } else if (!is_high_altitude && current_requires_adjustment != 0) {
+          print("CHECK - country is not in the list of countries that require hb altitude adjustment but requires_hb_adjustment was set to 1:", "br_red")
+          print(paste("ISO:", current_iso), indent = 2)
+        }
+      }, error = function(e) {
+        print("WARNING - could not read high altitude countries file for validation:", "br_violet")
+        print(paste("Error:", e$message), indent = 2)
+      })
+    }
+
+    # Check if requires_hb_adjustment = 1 then required variables exist
+    if ("requires_hb_adjustment" %in% names(dat)) {
+      current_requires_adjustment <- unique(dat$requires_hb_adjustment)[1]
+      if (current_requires_adjustment == 1) {
+        adj_hb_vars <- c("adj_hb", "adj_hb1", "adj_hb2")
+        method_vars <- c("hb_adjustment_method", "hb_adjustment_method2", "hb_adjustment_method3")
+        hb_vars <- c("hb", "hb1", "hb2")
+
+        has_adj_hb <- any(adj_hb_vars %in% names(dat))
+        has_method <- any(method_vars %in% names(dat))
+        has_hb <- any(hb_vars %in% names(dat))
+        has_altitude <- "altitude" %in% names(dat)
+
+        valid_combination <- (has_adj_hb && has_method) || (has_hb && has_altitude)
+
+        if (!valid_combination) {
+          print("CHECK - requires_hb_adjustment is set to 1 but required variables are missing:", "br_red")
+          print("Need either adjusted haemoglobin measurements and adjustment method, or unadjusted haemoglobin measurements and altitude", indent = 2)
+        }
+      }
     }
 
     ## TODO: check if 0/1 variables are coded as 0/1
