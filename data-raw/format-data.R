@@ -3,6 +3,7 @@ library(devtools)
 
 # Load necessary data and save as part of package
 # This script needs to be run whenever the input files are updated
+# Delete the old data and run the script from the root folder of the package
 
 # Standard country names
 countrylist <- read.csv("data-raw/country-list-2023-new.csv")
