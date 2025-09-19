@@ -12,3 +12,7 @@ use_data(countrylist)
 # standard variable name list - the list should be updated separately
 std_names_list <- read.csv("data-raw/standard_variable_names.csv")
 use_data(std_names_list)
+
+# list of ISOs of high-altitude countries to be accounted for in haemoglobin data
+high_altitude_countries <- read.csv("data-raw/high_altitude_countries.csv")
+use_data(high_altitude_countries)
