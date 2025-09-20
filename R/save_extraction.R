@@ -6,14 +6,18 @@
 #'
 #' @param data data frame to be saved
 #' @param filename name of files to be saved. Use the format "Country Study_name Year_duration". For example: "USA NHANES 2005-2016"
+#' @param study_dir location of study folder for saving extracted files
 #' @param extracted_data_dir location of `extracted survey` folder: must be specified manually
-#' @param save_extracted_CSV whether save extracted files to `extracted survey` folder
+#' @param save_to_extracted_data_dir whether save extracted files to `extracted survey` folder
 #' @export
-save_extraction <- function(data, filename, extracted_data_dir = NULL, save_extracted_CSV = TRUE) {
+save_extraction <- function(data, filename, study_dir = NULL, save_to_study_dir = TRUE, extracted_data_dir = NULL, save_to_extracted_data_dir = TRUE) {
 
-    # Make sure extraction folder is specified
-    if (is.null(extracted_data_dir) & save_extracted_CSV) {
-        stop('Please specify `extracted_data_dir = "S:/Projects/HeightProject/Original dataset/Data/Surveys/Extracted Survey/"`, or set `save_extracted_CSV = FALSE`')
+    # Specify study folder
+    if (is.null(study_dir)) study_dir <- paste0(getwd(), "/")
+
+    # Specify extracted survey folder
+    if (is.null(extracted_data_dir) & save_to_extracted_data_dir) {
+        stop('Please specify `extracted_data_dir = "S:/Projects/HeightProject/Original dataset/Data/Surveys/Extracted Survey/"`, or set `save_to_extracted_data_dir = FALSE`')
     }
 
     # Function to record message in the extraction log
@@ -39,16 +43,24 @@ save_extraction <- function(data, filename, extracted_data_dir = NULL, save_extr
     print_it("ncdrisc package version added to extraction:", "yellow")
     print_it(version, indent = 2)
 
-    # Save RData file in study folder for fast loading of extracted data in the future
-    save(data, file = paste0(filename, ".RData"))
-    print_it("Files saved:", "yellow")
-    print_it(paste0(getwd(), "/", filename, ".RData"), indent = 2)
+    if (save_to_study_dir) {
+        # Save RData file in study folder for fast loading of extracted data in the future
+        save(data, file = paste0(study_dir, filename, ".RData"))
+        print_it("Files saved:", "yellow")
+        print_it(paste0(study_dir, filename, ".RData"), indent = 2)
 
-    # Save CSV file in study folder
-    write.csv(data, paste0(filename, ".csv"), row.names=FALSE)
-    print_it(paste0(getwd(), "/", filename, ".csv"), indent = 2)
+        # Save CSV file in study folder
+        write.csv(data, paste0(study_dir, filename, ".csv"), row.names=FALSE)
+        print_it(paste0(study_dir, filename, ".csv"), indent = 2)
 
-    if (save_extracted_CSV) {
+        print_it("Set `study_dir` to the correct location if the above folder path is incorrect.", indent = 2)
+    } else {
+        print_it(paste0("Files are not saved in the study folder: ", study_dir), "yellow")
+        print_it("Set `save_to_study_dir = TRUE` if the files should be written to the study folder.", indent = 2)
+        print_it("Set `study_dir` to the correct location if the above folder path is incorrect.", indent = 2)
+    }
+
+    if (save_to_extracted_data_dir) {
         # Save CSV file in Extracted survey folder
         write.csv(data, paste0(extracted_data_dir, filename, ".csv"), row.names=FALSE)
         print_it(paste0(extracted_data_dir, filename, ".csv"), indent = 2)
@@ -62,13 +74,14 @@ save_extraction <- function(data, filename, extracted_data_dir = NULL, save_extr
         # Print extraction log message in console
         print_it("Log updated:", "yellow")
         print_it(paste0(extracted_data_dir, "logs/extraction_modification_log.txt"), indent = 2)
-        print_it("with the following message:", "yellow")
+        print_it("Log message:", "yellow")
         print_message(' ')
 
         print_it("Extraction done.", "yellow")
     } else {
-        print_it("Files are saved in the study folder, but not in `extracted survey` folder.", "yellow")
-        print_it("Set `save_extracted_CSV = FALSE` if the files in `extracted survey` folder should be updated.", indent = 2)
+        tmp_text <- ifelse(save_to_study_dir, "saved in the study folder, but not", "not saved")
+        print_it(paste0("Files are ", tmp_text, " in the `extracted survey` folder."), "yellow")
+        print_it("Set `save_to_extracted_data_dir = FALSE` if the files in `extracted survey` folder should be updated.", indent = 2)
     }
 
 }
