@@ -6,7 +6,8 @@
 #'
 #' @param data data frame to be saved
 #' @param filename name of files to be saved. Use the format "Country Study_name Year_duration". For example: "USA NHANES 2005-2016"
-#' @param extracted_data_dir location of extracted survey folder
+#' @param extracted_data_dir location of `extracted survey` folder: must be specified manually
+#' @param save_extracted_CSV whether save extracted files to `extracted survey` folder
 #' @export
 save_extraction <- function(data, filename, extracted_data_dir = NULL, save_extracted_CSV = TRUE) {
 

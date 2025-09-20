@@ -1,3 +1,7 @@
+# ncdrisc 0.0.4
+
+* Edited `save_extraction()` function to require explicit specification of `extracted survey` folder
+
 # ncdrisc 0.0.3
 
 * Added checking package version on load

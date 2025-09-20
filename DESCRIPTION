@@ -1,9 +1,11 @@
 Package: ncdrisc
 Title: Useful functions for NCD Risk Factor Collaboration
-Version: 0.0.3
+Version: 0.0.4
 Authors@R: 
-    person("Bin", "Zhou", , "binzhouzb@gmail.com", role = c("aut", "cre"),
+    person("Bin", "Zhou", , "b.zhou13@imperial.ac.uk", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1741-8628"))
+    person("NCD-RisC", "", , "ncdrisc@imperial.ac.uk", role = c("cre"),
+           comment = c(URL = "www.ncdrisc.org"))
 Description: Useful functions for NCD-RisC team
 License: BSD 3-Clause license
 Encoding: UTF-8
