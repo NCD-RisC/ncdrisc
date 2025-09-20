@@ -50,102 +50,102 @@ check_extraction <- function(dataset) {
   for (i in stud_id) {
     dat <- subset(dataset, dataset$id_study == i)
 
-    print(paste("CHECKING ",i), "yellow")
+    print_it(paste("CHECKING ",i), "yellow")
 
     # Fatal error: more than one unique values in metadata variables
     unique_value_lengths <- sapply(intersect(meta_var_list, names(dat)), function(v) length(unique(dat[[v]])))
     if(any(unique_value_lengths)>1) {
-      print("CHECK - non-unique values in metadata variables:", "br_red")
-      print(names(unique_value_lengths)[unique_value_lengths>1], indent = 2)
+      print_it("CHECK - non-unique values in metadata variables:", "br_red")
+      print_it(names(unique_value_lengths)[unique_value_lengths>1], indent = 2)
     }
 
     # Inconsistency: iso in id_study
     if (any(unique(dat$iso) != substr(i, 1, 3))) {
-      print("CHECK - inconsistent ISO with id_study:", "br_red")
-      print(paste(i, "vs", paste(unique(dat$iso), collapse = ', ')))
+      print_it("CHECK - inconsistent ISO with id_study:", "br_red")
+      print_it(paste(i, "vs", paste(unique(dat$iso), collapse = ', ')))
     }
 
     # Fatal error: typo in iso and country name
     if (any(!unique(dat$iso) %in% countrylist$iso)) {
-      print("CHECK - ISO not in country list:", "br_red")
-      print(paste(i, "vs", paste(unique(dat$iso), collapse = ', ')))
+      print_it("CHECK - ISO not in country list:", "br_red")
+      print_it(paste(i, "vs", paste(unique(dat$iso), collapse = ', ')))
     } else {
       if (any(!unique(dat$country) %in% countrylist$Country[countrylist$iso %in% unique(dat$iso)])) {
-        print("CHECK - country name not in country list:", "br_red")
-        print(paste(unique(dat$country), collapse = ', '))
+        print_it("CHECK - country name not in country list:", "br_red")
+        print_it(paste(unique(dat$country), collapse = ', '))
       }
     }
 
     # Inconsistency: mid_year in id_study
     if (any(unique(dat$mid_year) != as.numeric(substr(i, 5, 8)))) {
-      print("CHECK - inconsistent mid_year with id_study:", "br_red")
-      print(paste(i, "vs", paste(unique(dat$mid_year), collapse = ', ')))
+      print_it("CHECK - inconsistent mid_year with id_study:", "br_red")
+      print_it(paste(i, "vs", paste(unique(dat$mid_year), collapse = ', ')))
     }
 
     # Inconsistency: survey_short in id_study
     if (any(unique(dat$survey_short) != substr(i, 10, nchar(i)))) {
-      print("CHECK - inconsistent survey_short with id_study:", "br_red")
-      print(paste(i, "vs", paste(unique(dat$survey_short), collapse = ', ')))
+      print_it("CHECK - inconsistent survey_short with id_study:", "br_red")
+      print_it(paste(i, "vs", paste(unique(dat$survey_short), collapse = ', ')))
     }
 
     # Fatal error: non-standard coding in survey_type
     if (any(!unique(dat$survey_type) %in% c("National", "Subnational", "Community", "mixed", "Mixed"))) {
-      print("CHECK - non-standard coding for survey_type:", "br_red")
-      print(paste(unique(dat$survey_type), collapse = ', '))
+      print_it("CHECK - non-standard coding for survey_type:", "br_red")
+      print_it(paste(unique(dat$survey_type), collapse = ', '))
     }
 
     # Fatal error: non-standard coding in survey_type
     if (any(!unique(dat$urban_rural) %in% c("urban", "rural", "both", "mixed", "Mixed"))) {
-      print("CHECK - non-standard coding for urban_rural:", "br_red")
-      print(paste(unique(dat$urban_rural), collapse = ', '))
+      print_it("CHECK - non-standard coding for urban_rural:", "br_red")
+      print_it(paste(unique(dat$urban_rural), collapse = ', '))
 
     }
 
     # Fatal error: duplicated column names
     if (any(grepl("\\.1", names(dat)))) {
-      print("CHECK - variables with '.1' in names indicating duplicated columns in extraction", "br_red")
-      print(grep("\\.1", names(dat), value = TRUE))
+      print_it("CHECK - variables with '.1' in names indicating duplicated columns in extraction", "br_red")
+      print_it(grep("\\.1", names(dat), value = TRUE))
     }
 
     # Check numerical variables
     classes <- lapply(dat[, names(dat) %in% numeric_var_list], class)
     non_numeric_list <- names(classes[!classes %in% c("numeric", "integer", "logical")])
     if (length(non_numeric_list) > 0) {
-      print("CHECK - numerical variables in non-numeric formats:", "br_red")
-      print(non_numeric_list)
+      print_it("CHECK - numerical variables in non-numeric formats:", "br_red")
+      print_it(non_numeric_list)
     }
 
     # Fatal error: sex variable missing or miscoded
     if(any(!dat$sex %in% c(1,2) & !is.na(dat$sex))){
-      print("CHECK - sex miscoding", "br_red")
+      print_it("CHECK - sex miscoding", "br_red")
     }
 
     # Check: confirm that only one sex is avaiable or whether it was miscoded
     if(any(is.na(dat$sex))){
       if(length(unique(dat$sex)) ==2){
-        print("CHECK - only one value for sex and NA: is sex coded correctly?")
+        print_it("CHECK - only one value for sex and NA: is sex coded correctly?")
       }
     }
 
     # Check age range variables
     if(any(is.na(dat[,grepl('age_min|age_max',names(dat))]))){
       if(length(unique(dat$sex)) ==2){
-        print("CAUTION - age_min and age_max variables have NA in them: please verify this is intended", "br_violet")
+        print_it("CAUTION - age_min and age_max variables have NA in them: please verify this is intended", "br_violet")
       }
     }
 
     # Fatal error: no age variable
     if(sum(!is.na(dat$age)) == 0){
       if (!'age_mean' %in% names(dat) | ('age_mean' %in% names(dat) & sum(!is.na(dat$age_mean)) == 0)) {
-        print("CHECK - age missing for all", "br_red")
+        print_it("CHECK - age missing for all", "br_red")
       }
     }
 
     # Check height data is not in metre
     if('height' %in% names(dat) & sum(!is.na(dat$height)) > 0 ){
-      if (mean(dat$height, na.rm=TRUE)<80) print("CHECK - mean value for height too low: is it extracted in metre or inch?", "br_red")
+      if (mean(dat$height, na.rm=TRUE)<80) print_it("CHECK - mean value for height too low: is it extracted in metre or inch?", "br_red")
     } else if ('height1' %in% names(dat) & sum(!is.na(dat$height1)) > 0) {
-      if (mean(dat$height1, na.rm=TRUE)<80) print("CHECK - mean value for height too low: is it extracted in metre or inch?", "br_red")
+      if (mean(dat$height1, na.rm=TRUE)<80) print_it("CHECK - mean value for height too low: is it extracted in metre or inch?", "br_red")
     }
 
     # Check sex if height data available
@@ -157,7 +157,7 @@ check_extraction <- function(dataset) {
         m_height <- mean(dat$height[which(dat$height>0 & dat$sex == 1)])
         f_height <- mean(dat$height[which(dat$height>0 & dat$sex == 2)])
         if (m_height <= f_height) {
-          print("CHECK - male height smaller than female height: is sex coded correctly?", "br_red")
+          print_it("CHECK - male height smaller than female height: is sex coded correctly?", "br_red")
           base::print(tapply(dat$height, dat$sex, mean, na.rm=TRUE))
         }
       }
@@ -183,9 +183,9 @@ check_extraction <- function(dataset) {
       cleaned_vars2 <- gsub(paste0("^", pair[2]), "", vars2)
 
       if (!identical(cleaned_vars1, cleaned_vars2)) {
-        print("CHECK - unexpected variable name patterns: are variables named correctly?")
-        print(vars1, indent = 2)
-        print(vars2, indent = 2)
+        print_it("CHECK - unexpected variable name patterns: are variables named correctly?")
+        print_it(vars1, indent = 2)
+        print_it(vars2, indent = 2)
         next
       }
 
@@ -198,7 +198,7 @@ check_extraction <- function(dataset) {
         if (sum(!is.na(v1)) == 0 & sum(!is.na(v2)) == 0) next
         if ((all(is.na(v1)) | all(is.na(v2)))) {
           if (pair[1] != 'hip') {
-            print(paste0("CHECK - only one of ", vars1[i], " and ", vars2[i], " exists in extraction", "br_red"))
+            print_it(paste0("CHECK - only one of ", vars1[i], " and ", vars2[i], " exists in extraction", "br_red"))
           }
           next
         }
@@ -208,8 +208,8 @@ check_extraction <- function(dataset) {
       }
 
       if (length(failed_list)>0) {
-        print("CHECK - the following variables have unexpected relationships (the former should always > the latter):", "br_red")
-        print(failed_list, indent = 2)
+        print_it("CHECK - the following variables have unexpected relationships (the former should always > the latter):", "br_red")
+        print_it(failed_list, indent = 2)
       }
 
     }
@@ -217,10 +217,10 @@ check_extraction <- function(dataset) {
     # Check if urban_rural is 0 or 1 and urban_rural isn't "both"
     if (unique(dat$urban_rural) != "both") {
       if (unique(dat$iso) == "TKL") {
-        print("CHECK - iso is TKL which has perurb=0, so we should have urban_rural = both", "br_red")
+        print_it("CHECK - iso is TKL which has perurb=0, so we should have urban_rural = both", "br_red")
       } else {
         if (unique(dat$iso) %in% c("NRU","BMU","KWT") | (unique(dat$iso) == "SGP" & unique(dat$mid_year) > 2001)) {
-          print("CHECK - perurb=1 for survey and country-year, so we should have urban_rural = both", "br_red")
+          print_it("CHECK - perurb=1 for survey and country-year, so we should have urban_rural = both", "br_red")
         }
       }
     }
@@ -233,10 +233,10 @@ check_extraction <- function(dataset) {
     col <- data.frame(sum = colSums(dat[names(classes)], na.rm = TRUE), var = names(classes))
     col <- subset(col, !col$sum %in% c(0, 1)) # remove as likely NA or metadata with 0/1 coding
     if (any(duplicated(col$sum)) == TRUE) {
-      print("CAUTION - columns with the same sum - was the same variable extracted twice?", "br_violet")
-      print("Look out for measurement columns below:", indent = 2)  # to downgrade message to grey if only samplewt variables
+      print_it("CAUTION - columns with the same sum - was the same variable extracted twice?", "br_violet")
+      print_it("Look out for measurement columns below:", indent = 2)  # to downgrade message to grey if only samplewt variables
       dup_sum <- col$sum[duplicated(col$sum)]
-      print(col$var[col$sum %in% dup_sum], indent = 2)
+      print_it(col$var[col$sum %in% dup_sum], indent = 2)
     }
 
     # TODO: check if drug and self variables are identical
@@ -244,8 +244,8 @@ check_extraction <- function(dataset) {
     # Check against standard variable names
     nonstd_name <- setdiff(names(dat)[!names(dat) %in% std_names_list$Name & !grepl("\\.1", names(dat))], "mod_time")
     if (length(nonstd_name) > 0) {
-      print("CHECK - non-standard variable names found:", "br_red")
-      print(nonstd_name, indent = 2)
+      print_it("CHECK - non-standard variable names found:", "br_red")
+      print_it(nonstd_name, indent = 2)
     }
     #col01 <- setdiff(grep("is_|self|averaged", colnames(dat), value = T),grep("_age|_year|standard", colnames(dat), value = T))
     #for(i in col01) {
@@ -268,18 +268,18 @@ check_extraction <- function(dataset) {
     tmpcheck <- do.call(rbind, tmpcheck)
     # white space
     if (any(tmpcheck$ws)) {
-      print("CHECK - remove white space in the values of variables (using trimws function):", "br_red")
-      print(rownames(tmpcheck)[tmpcheck$ws], indent = 2)
+      print_it("CHECK - remove white space in the values of variables (using trimws function):", "br_red")
+      print_it(rownames(tmpcheck)[tmpcheck$ws], indent = 2)
     }
     # empty string
     if (any(tmpcheck$empty)) {
-      print("CHECK - recode empty or blank strings to NA:", "br_red")
-      print(rownames(tmpcheck)[tmpcheck$empty], indent = 2)
+      print_it("CHECK - recode empty or blank strings to NA:", "br_red")
+      print_it(rownames(tmpcheck)[tmpcheck$empty], indent = 2)
     }
     # NA in value
     if (any(tmpcheck$na)) {
-      print("CHECK - recode NA stored as string to NA:", "br_red")
-      print(rownames(tmpcheck)[tmpcheck$na], indent = 2)
+      print_it("CHECK - recode NA stored as string to NA:", "br_red")
+      print_it(rownames(tmpcheck)[tmpcheck$na], indent = 2)
     }
 
     # Check if hb columns exist then requires_hb_adjustment must exist
@@ -287,8 +287,8 @@ check_extraction <- function(dataset) {
     existing_hb_columns <- intersect(hb_columns, names(dat))
     if (length(existing_hb_columns) > 0) {
       if (!"requires_hb_adjustment" %in% names(dat)) {
-        print("CHECK - hb columns present but requires_hb_adjustment missing:", "br_red")
-        print(existing_hb_columns, indent = 2)
+        print_it("CHECK - hb columns present but requires_hb_adjustment missing:", "br_red")
+        print_it(existing_hb_columns, indent = 2)
       }
     }
 
@@ -301,15 +301,15 @@ check_extraction <- function(dataset) {
         current_requires_adjustment <- unique(dat$requires_hb_adjustment)[1]
 
         if (is_high_altitude && current_requires_adjustment != 1) {
-          print("CAUTION - country is in the list of countries that require hb altitude adjustment but requires_hb_adjustment was set to 0:", "br_violet")
-          print(paste("ISO:", current_iso, "- is this a community study in a low altitude area?"), indent = 2)
+          print_it("CAUTION - country is in the list of countries that require hb altitude adjustment but requires_hb_adjustment was set to 0:", "br_violet")
+          print_it(paste("ISO:", current_iso, "- is this a community study in a low altitude area?"), indent = 2)
         } else if (!is_high_altitude && current_requires_adjustment != 0) {
-          print("CHECK - country is not in the list of countries that require hb altitude adjustment but requires_hb_adjustment was set to 1:", "br_red")
-          print(paste("ISO:", current_iso), indent = 2)
+          print_it("CHECK - country is not in the list of countries that require hb altitude adjustment but requires_hb_adjustment was set to 1:", "br_red")
+          print_it(paste("ISO:", current_iso), indent = 2)
         }
       }, error = function(e) {
-        print("WARNING - could not read high altitude countries file for validation:", "br_violet")
-        print(paste("Error:", e$message), indent = 2)
+        print_it("WARNING - could not read high altitude countries file for validation:", "br_violet")
+        print_it(paste("Error:", e$message), indent = 2)
       })
     }
 
@@ -329,8 +329,8 @@ check_extraction <- function(dataset) {
         valid_combination <- (has_adj_hb && has_method) || (has_hb && has_altitude)
 
         if (!valid_combination) {
-          print("CHECK - requires_hb_adjustment is set to 1 but required variables are missing:", "br_red")
-          print("Need either adjusted haemoglobin measurements and adjustment method, or unadjusted haemoglobin measurements and altitude", indent = 2)
+          print_it("CHECK - requires_hb_adjustment is set to 1 but required variables are missing:", "br_red")
+          print_it("Need one of the two:\n  (1) adjusted haemoglobin measurements (adj_hb) and adjustment method (hb_adjustment_method)\n  (2) unadjusted haemoglobin measurements (hb) and altitude (altitude)", indent = 2)
         }
       }
     }
@@ -340,6 +340,6 @@ check_extraction <- function(dataset) {
     #        eg anthro has to be metric (and cm instead of m), biomarkers have to be either mmol/L or mg/dL (I think we allow mg/dl too), a1c in % or mmol/mol
     ## TODO: check special characters in columns other than survey name
 
-    print("DONE", "yellow")
+    print_it("DONE", "yellow")
   }
 }
