@@ -282,11 +282,13 @@ check_extraction <- function(dataset) {
       print_it(rownames(tmpcheck)[tmpcheck$na], indent = 2)
     }
 
+    ### Haemoglobin related checks ###
     # Check if hb columns exist then requires_hb_adjustment must exist
     hb_columns <- c("hb", "hb1", "hb2", "adj_hb", "adj_hb1", "adj_hb2")
     existing_hb_columns <- intersect(hb_columns, names(dat))
     if (length(existing_hb_columns) > 0) {
       if (!"requires_hb_adjustment" %in% names(dat)) {
+        # Fatal error: essential metadata missing for hb
         print_it("CHECK - hb columns present but requires_hb_adjustment missing:", "br_red")
         print_it(existing_hb_columns, indent = 2)
       }
@@ -295,7 +297,8 @@ check_extraction <- function(dataset) {
     # Check country against high altitude countries list
     if ("requires_hb_adjustment" %in% names(dat)) {
       tryCatch({
-        high_altitude_countries <- read.csv("S:/Projects/HeightProject/Original dataset/Anaemia/altitude info/high_altitude_countries.csv")
+        # high_altitude_countries <- read.csv("S:/Projects/HeightProject/Original dataset/Anaemia/altitude info/high_altitude_countries.csv")
+        # high_altitude_countries now loaded with package: can still use the above line for testing
         current_iso <- unique(dat$iso)[1]
         is_high_altitude <- current_iso %in% high_altitude_countries$iso3
         current_requires_adjustment <- unique(dat$requires_hb_adjustment)[1]
@@ -308,7 +311,7 @@ check_extraction <- function(dataset) {
           print_it(paste("ISO:", current_iso), indent = 2)
         }
       }, error = function(e) {
-        print_it("WARNING - could not read high altitude countries file for validation:", "br_violet")
+        print_it("ERROR - could not read high altitude countries file for validation:", "br_violet")
         print_it(paste("Error:", e$message), indent = 2)
       })
     }
@@ -334,6 +337,7 @@ check_extraction <- function(dataset) {
         }
       }
     }
+    ### End of haemoglobin related checks ###
 
     ## TODO: check if 0/1 variables are coded as 0/1
     ## TODO: check unit variables: we can add correct units to the standard variable list - start from just the anthro/lipids/glucose variables
