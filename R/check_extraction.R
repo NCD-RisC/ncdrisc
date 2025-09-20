@@ -21,11 +21,19 @@
 #' @export
 check_extraction <- function(dataset) {
 
-  # Load data: this files are now loaded as part of the package
-  # # standard country names
+  # Load data:
+
+  # standard country names
   # countrylist <- read.csv("S:/Projects/HeightProject/Original dataset/Covariates/country-list-2023-new.csv")
-  # # standard variable name list - the list should be updated separately
+  countrylist <- ncdrisc::countrylist
+
+  # standard variable name list - the list should be updated separately
   # std_names_list <- read.csv("S:/Projects/HeightProject/Original dataset/Data/Surveys/__Extraction Template/standard_variable_names.csv")
+  std_names_list <- ncdrisc::std_names_list
+
+  # List of high-altitutde countries that Hb needs adjusting
+  # high_altitude_countries <- read.csv("S:/Projects/HeightProject/Original dataset/Anaemia/altitude info/high_altitude_countries.csv")
+  high_altitude_countries <- ncdrisc::high_altitude_countries
 
   # Legacy naming issue
   # we use ha1c in extraction but hba1c downstream - rename hba1c variables to ha1c for these checks
@@ -297,8 +305,6 @@ check_extraction <- function(dataset) {
     # Check country against high altitude countries list
     if ("requires_hb_adjustment" %in% names(dat)) {
       tryCatch({
-        # high_altitude_countries <- read.csv("S:/Projects/HeightProject/Original dataset/Anaemia/altitude info/high_altitude_countries.csv")
-        # high_altitude_countries now loaded with package: can still use the above line for testing
         current_iso <- unique(dat$iso)[1]
         is_high_altitude <- current_iso %in% high_altitude_countries$iso3
         current_requires_adjustment <- unique(dat$requires_hb_adjustment)[1]
