@@ -17,7 +17,7 @@ save_extraction <- function(data, filename, study_dir = NULL, save_to_study_dir 
 
     # Specify extracted survey folder
     if (is.null(extracted_data_dir) & save_to_extracted_data_dir) {
-        stop('Please specify `extracted_data_dir = "S:/Projects/HeightProject/Original dataset/Data/Surveys/Extracted Survey/"`, or set `save_to_extracted_data_dir = FALSE`')
+        stop('Please specify `extracted_data_dir = "S:/Projects/HeightProject/Original dataset/Data/Surveys/Extracted Survey/"` (or a custom location), or set `save_to_extracted_data_dir = FALSE`')
     }
 
     # Function to record message in the extraction log
