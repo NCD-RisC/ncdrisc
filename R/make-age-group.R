@@ -8,8 +8,30 @@
 #' @examples
 #' make_age_group(29, 18, 200)
 #' make_age_group(c(29,32,50,80,12,18,80), c(18,18,55,55,10,10,18), c(200,35,80,80,200,200,200))
+#' make_age_group(c(29,32,50,80,12,18,80), c(18,18,55,55,10,10,18), c(200,35,80,80,200,200,200), anthro = TRUE)
+#' make_age_group_anthro(c(29,32,50,80,12,18,80), c(18,18,55,55,10,10,18), c(200,35,80,80,200,200,200))
+#'
+#' data$age_min <- with(data, ifelse(sex=="male", age_min_glu_M, age_min_glu_F))
+#' data$age_max <- with(data, ifelse(sex=="male", age_max_glu_M, age_max_glu_F))
+#' ages <- make_age_groups(data$age, data$age_min, data$age_max)
+#' data$age_mean <- ages$age_mean
+#' data$age_group <- ages$age_group
+#'
 #' @export
 make_age_group <- function(age, age_design_min, age_design_max, anthro = FALSE) {
+
+  # check dimension
+  if ((length(age_design_min) != 1 & length(age_design_min) != length(age)) | (length(age_design_max) != 1 & length(age_design_max) != length(age))) {
+    stop('Check dimension of age_design_min, age_design_max, age: the first two should either have length of 1 or the same length as age')
+  }
+  # check age range values
+  if (any(is.na(age_design_min)) | any(is.na(age_design_max))) {
+    stop('NA values not allowed in age_design_min and age_design_max')
+  }
+
+  if (length(age_design_min) == 1) age_design_min <- rep(age_design_min, length(age))
+  if (length(age_design_max) == 1) age_design_max <- rep(age_design_max, length(age))
+
   # mean age for open age groups
   # pre-determined using world life table (calculated by Mariachiara Di Cesare)
   mean_age_open_age_group <-
@@ -59,5 +81,12 @@ make_age_group <- function(age, age_design_min, age_design_max, anthro = FALSE) 
     age_mean[adolescent_list] <- floor(age[adolescent_list])
   }
 
-  return(data.frame(age_mean, age_group, agemin = age_min, agemax = age_max))   # ideally age_min and age_max should go
+  age_group <- gsub('-200', '+', age_group)
+
+  return(data.frame(age_mean, age_group, agemin = age_min, agemax = age_max))
+}
+
+#' @export
+make_age_group_anthro <- function(...) {
+  return(make_age_group(..., anthro = TRUE))
 }

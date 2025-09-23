@@ -22,4 +22,13 @@ Generate age group for each individual accounting for the age range of study
 \examples{
 make_age_group(29, 18, 200)
 make_age_group(c(29,32,50,80,12,18,80), c(18,18,55,55,10,10,18), c(200,35,80,80,200,200,200))
+make_age_group(c(29,32,50,80,12,18,80), c(18,18,55,55,10,10,18), c(200,35,80,80,200,200,200), anthro = TRUE)
+make_age_group_anthro(c(29,32,50,80,12,18,80), c(18,18,55,55,10,10,18), c(200,35,80,80,200,200,200))
+
+data$age_min <- with(data, ifelse(sex=="male", age_min_glu_M, age_min_glu_F))
+data$age_max <- with(data, ifelse(sex=="male", age_max_glu_M, age_max_glu_F))
+ages <- make_age_groups(data$age, data$age_min, data$age_max)
+data$age_mean <- ages$age_mean
+data$age_group <- ages$age_group
+
 }
