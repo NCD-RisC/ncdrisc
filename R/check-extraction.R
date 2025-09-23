@@ -1,13 +1,4 @@
 
-## Edit history
-## Rosie May 2023
-## Bin Jan 2024: added condition for checking age range; added checks for value constraints for BP and waist/hip
-## YDDB Dec 2024: adding checks for variables that should be 0/1 - not completed yet (10/12/2024)
-# ABP March 2025: Corrected line 125 to avoid error caused by only one variable of the pairs available
-# BZ March 2025: corrected condition for pair wise comparison where integer overflow happened when multiplying two large Ns
-# BZ March 2025: added checks for empty strings or 'NA' strings in variable values; added check for unique values in metadata columns; added more comments
-# FD September 2025: added checks for hb altitude adjustment
-
 #' Function to check extractions before saving
 #'
 #' This function checks formatted extractions and print out error, check and caution messages
@@ -15,6 +6,15 @@
 #' Checks are usually issues that need amending and they are produced together in single run.
 #' Cautions may not be a problem; they highlight something that require an active check and
 #' decision to ignore.
+#'
+#' Edit history
+#' * RS created May 2023
+#' * BZ Jan 2024: added condition for checking age range; added checks for value constraints for BP and waist/hip
+#' * YDDB Dec 2024: adding checks for variables that should be 0/1 - not completed yet (10/12/2024)
+#' * ABP March 2025: Corrected line 125 to avoid error caused by only one variable of the pairs available
+#' * BZ March 2025: corrected condition for pair wise comparison where integer overflow happened when multiplying two large Ns
+#' * BZ March 2025: added checks for empty strings or 'NA' strings in variable values; added check for unique values in metadata columns; added more comments
+#' * FD September 2025: added checks for hb altitude adjustment
 #'
 #' @param dataset data frame of extraction to be checked: can be a single study or multiple studies.
 #' @return NULL

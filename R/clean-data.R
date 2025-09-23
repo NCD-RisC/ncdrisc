@@ -122,7 +122,7 @@ clean_data_index <- function(data, variable) {
 # convert units
 convert_unit <- function(data, variable) {
     # convert unit
-    unit_var <- case_when(
+    unit_var <- dplyr::case_when(
         variable == 'fgl' ~ 'unit_gl',
         variable %in% c(
             'ppg','hba1c','tc','hdl','ldl','trg'

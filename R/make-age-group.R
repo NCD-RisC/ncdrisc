@@ -9,7 +9,7 @@
 #' make_age_groups(29, 18, 200)
 #' make_age_groups(c(29,32,50,80,12,18,80), c(18,18,55,55,10,10,18), c(200,35,80,80,200,200,200))
 #' @export
-make_age_groups <- function(age, age_design_min, age_design_max, anthro = FALSE) {
+make_age_group <- function(age, age_design_min, age_design_max, anthro = FALSE) {
   # mean age for open age groups
   # pre-determined using world life table (calculated by Mariachiara Di Cesare)
   mean_age_open_age_group <-
