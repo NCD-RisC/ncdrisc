@@ -18,10 +18,13 @@ RoxygenNote: 7.3.2
 Imports:
     insight
     dplyr
+    stringi
 Depends: 
     R (>= 2.10)
 LazyData: true
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
+Config/testthat/edition: 3
