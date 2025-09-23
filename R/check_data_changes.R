@@ -233,11 +233,11 @@ check_data_changes <- function(data, id_study) {
   comparison_data <- read_extracted_df(data)
 
   if (is.null(comparison_data)) {
-    print(paste("CAUTION -", id_study, "does not exist among extracted surveys. Is this a new extraction?"), "br_violet")
+    print_it(paste("CAUTION -", id_study, "does not exist among extracted surveys. Is this a new extraction?"), "br_violet")
     return(invisible(NULL))
   }
 
-  print(paste(id_study, "was previously extracted. Checking changes in data"), "yellow")
+  print_it(paste(id_study, "was previously extracted. Checking changes in data"), "yellow")
 
   # Call compare_dataframes to do the actual comparison
   compare_dataframes(data, comparison_data)
