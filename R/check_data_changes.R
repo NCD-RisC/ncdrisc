@@ -103,12 +103,12 @@ compare_dataframes <- function(new_data, comparison_data) {
   removed_columns <- setdiff(old_file_columns, new_file_columns)
 
   if (length(new_columns) > 0) {
-    print("CAUTION - added columns:", "br_violet")
+    print_it("CAUTION - added columns:", "br_violet")
     print(new_columns, indent = 2)
   }
 
   if (length(removed_columns) > 0) {
-    print("CAUTION - removed columns:", "br_violet")
+    print_it("CAUTION - removed columns:", "br_violet")
     print(removed_columns, indent = 2)
   }
 
@@ -166,11 +166,11 @@ compare_dataframes <- function(new_data, comparison_data) {
         # Count changes from or to NA
         na_to_nonNA <- sum(!is.na(new_column_data) & is.na(old_column_data))
         if (na_to_nonNA > 0) {
-          print(paste("CAUTION -", na_to_nonNA, "NA values changed to non-NA in column", column_name), "br_violet")
+          print_it(paste("CAUTION -", na_to_nonNA, "NA values changed to non-NA in column", column_name), "br_violet")
         }
         nonNA_to_na <- sum(is.na(new_column_data) & !is.na(old_column_data))
         if (nonNA_to_na > 0) {
-          print(paste("CAUTION -", nonNA_to_na, "non-NA values changed to NA in column", column_name), "br_violet")
+          print_it(paste("CAUTION -", nonNA_to_na, "non-NA values changed to NA in column", column_name), "br_violet")
         }
 
         both_not_na <- !is.na(new_column_data) & !is.na(old_column_data)
@@ -181,9 +181,9 @@ compare_dataframes <- function(new_data, comparison_data) {
           old_is_numeric <- is.numeric(old_column_data)
 
           if (new_is_numeric && !old_is_numeric) {
-            print(paste("CAUTION -", column_name, "column changed from non-numeric to numeric"), "br_violet")
+            print_it(paste("CAUTION -", column_name, "column changed from non-numeric to numeric"), "br_violet")
           } else if (!new_is_numeric && old_is_numeric) {
-            print(paste("CAUTION -", column_name, " column changed from numeric to non-numeric"), "br_violet")
+            print_it(paste("CAUTION -", column_name, " column changed from numeric to non-numeric"), "br_violet")
           }
 
           # Count value differences (excluding changes from or to NA)
@@ -202,7 +202,7 @@ compare_dataframes <- function(new_data, comparison_data) {
           }
 
           if (length(value_diff_indices) > 0) {
-            print(paste("CAUTION -", length(value_diff_indices), "values changed in", column_name), "br_violet")
+            print_it(paste("CAUTION -", length(value_diff_indices), "values changed in", column_name), "br_violet")
 
             # Show first 5 rows of differences as examples
             example_indices <- value_diff_indices[1:min(5, length(value_diff_indices))]
