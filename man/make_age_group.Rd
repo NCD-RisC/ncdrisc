@@ -20,6 +20,6 @@ The 10-year age group and corresponding mean age of \code{age} accounting for \c
 Generate age group for each individual accounting for the age range of study
 }
 \examples{
-make_age_groups(29, 18, 200)
-make_age_groups(c(29,32,50,80,12,18,80), c(18,18,55,55,10,10,18), c(200,35,80,80,200,200,200))
+make_age_group(29, 18, 200)
+make_age_group(c(29,32,50,80,12,18,80), c(18,18,55,55,10,10,18), c(200,35,80,80,200,200,200))
 }

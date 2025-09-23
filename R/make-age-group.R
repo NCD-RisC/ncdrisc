@@ -6,8 +6,8 @@
 #' @param age_design_max A vector of number.
 #' @return The 10-year age group and corresponding mean age of \code{age} accounting for \code{age_design_min} and \code{age_disgn_max}.
 #' @examples
-#' make_age_groups(29, 18, 200)
-#' make_age_groups(c(29,32,50,80,12,18,80), c(18,18,55,55,10,10,18), c(200,35,80,80,200,200,200))
+#' make_age_group(29, 18, 200)
+#' make_age_group(c(29,32,50,80,12,18,80), c(18,18,55,55,10,10,18), c(200,35,80,80,200,200,200))
 #' @export
 make_age_group <- function(age, age_design_min, age_design_max, anthro = FALSE) {
   # mean age for open age groups

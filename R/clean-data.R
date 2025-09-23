@@ -37,7 +37,7 @@ clean_data <- function(data, variable) {
 #' @export
 clean_data_index <- function(data, variable) {
   clean_list <- switch(variable,
-                       sex    = clean_sex(data$sex),
+                       sex    = clean_categorical(data[[variable]], variable, c(1,2)),
                        age    = clean_age(data$age),
 
                        height1 = ,
@@ -71,13 +71,13 @@ clean_data_index <- function(data, variable) {
                            clean_preg(data[[variable]], variable, data$age, data$sex),
                        is_urban = ,
                        is_plasma = , is_plasma_ppg =
-                         clean_categorical(data[[variable]], variable),
+                         clean_categorical(data[[variable]], variable, c(0,1)),
 
                        drug_diab = ,
                        drug_diab_insu = ,
                        drug_diab_pill = ,
                        self_diab =
-                         clean_categorical(data[[variable]], variable),
+                         clean_categorical(data[[variable]], variable, c(0,1)),
 
                        fgl    = clean_continuous(data[[variable]], variable, 2, 30),
                        ppg    = clean_continuous(data[[variable]], variable, 2, 30),
@@ -89,7 +89,7 @@ clean_data_index <- function(data, variable) {
                        self_hyper_12mos = ,
                        self_hyper_preg = ,
                        self_hyper =
-                         clean_categorical(data[[variable]], variable),
+                         clean_categorical(data[[variable]], variable, c(0,1)),
 
                        sbp1 = , sbp2 = , sbp3 = , sbp4 = , sbp5 = , sbp6 = , sbp7 = ,
                        sbp8 = , sbp9 = , sbp10 = , sbp11 = , sbp12 = , sbp13 = ,
@@ -105,7 +105,7 @@ clean_data_index <- function(data, variable) {
                        drug_chol_stat = ,
                        drug_chol_fibr = ,
                        self_chol =
-                         clean_categorical(data[[variable]], variable),
+                         clean_categorical(data[[variable]], variable, c(0,1)),
 
                        tc  = clean_continuous(data[[variable]], variable, 1.75, 20),
                        ldl = clean_continuous(data[[variable]], variable,  0.5, 10),
@@ -119,7 +119,8 @@ clean_data_index <- function(data, variable) {
   return(clean_list)
 }
 
-# convert units
+#' convert units
+#' @export
 convert_unit <- function(data, variable) {
     # convert unit
     unit_var <- dplyr::case_when(
@@ -298,26 +299,31 @@ clean_whr <- function(whr, age, is_pregnant) {
   return(clean_list)
 }
 
-clean_sex <- function(sex) {
-  clean_list <- which(sex != 1 & sex != 2)
-  print_message('sex', clean_list, sex)
-  return(clean_list)
-}
-
 clean_age <- function(age) {
   clean_list <- which(age < 0 | age > 120)
   print_message('age', clean_list, age)
   return(clean_list)
 }
 
+#' Cleaning a continuous variable
+#'
+#' @param var a vector to be cleaned
+#' @param var_name the name of the variable being cleaned
+#' @param minv minimum plausible value
+#' @param maxv maximum plausible value
+#' @examples
+#' fgl_clean <- clean_continuous(data[[variable]], variable, 2, 30)
+#' @export
 clean_continuous <- function(var, var_name, minv, maxv) {
   clean_list <- which(var < minv | var > maxv)
   print_message(var_name, clean_list, var)
   return(clean_list)
 }
 
-clean_categorical <- function(var, var_name) {
-  clean_list <- which(var != 0 & var != 1)
+#' Cleaning a categorical variable
+#' @export
+clean_categorical <- function(var, var_name, values) {
+  clean_list <- which(!var %in% values)
   print_message(var_name, clean_list, var)
   return(clean_list)
 }
