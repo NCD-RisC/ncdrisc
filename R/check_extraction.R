@@ -350,6 +350,9 @@ check_extraction <- function(dataset) {
     #        eg anthro has to be metric (and cm instead of m), biomarkers have to be either mmol/L or mg/dL (I think we allow mg/dl too), a1c in % or mmol/mol
     ## TODO: check special characters in columns other than survey name
 
+    # Check for changes against previously extracted data
+    check_data_changes(dat, i)
+
     print_it("DONE", "yellow")
   }
 }
