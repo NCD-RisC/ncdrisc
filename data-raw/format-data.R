@@ -16,3 +16,7 @@ use_data(std_names_list)
 # list of ISOs of high-altitude countries to be accounted for in haemoglobin data
 high_altitude_countries <- read.csv("data-raw/high_altitude_countries.csv")
 use_data(high_altitude_countries)
+
+# example dataset for testing
+example_data <- read.csv("data-raw/USA NHANES 2017-2018.csv")
+use_data(example_data)
