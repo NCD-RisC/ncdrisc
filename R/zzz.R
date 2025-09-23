@@ -5,11 +5,14 @@
     x <- readLines(url)
     remote_version <- gsub("Version:\\s*", "", x[grep('Version:', x)])
     installed_version <- tryCatch(packageVersion('ncdrisc'), error=function(e) NA)
-    if (installed_version != remote_version) {
-      print_it('Please install the latest version `ncdrisc` package.', 'br_red')
+    if (installed_version < remote_version) {
+      print_it('Please install the latest version of `ncdrisc` package.', 'br_red')
       print_it(paste('Installed version:', installed_version), 'grey')
       print_it(paste('Latest version on GitHub:', remote_version), 'grey')
       print_it('Run devtools::install_github("NCD-RisC/ncdrisc")')
+    } else if (installed_version > remote_version) {
+      print_it(paste('A test version is installed:', installed_version), 'cyan')
+      print_it(paste('Latest version on GitHub:', remote_version), 'cyan')
     }
   }, error = function(e) {
     print_it("WARNING - Cannot verify package version: are you offline?", "br_red")}
