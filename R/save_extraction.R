@@ -50,7 +50,7 @@ save_extraction <- function(data, filename, study_dir = NULL, save_to_study_dir 
         print_it(paste0(study_dir, filename, ".RData"), indent = 2)
 
         # Save CSV file in study folder
-        write.csv(data, paste0(study_dir, filename, ".csv"), row.names=FALSE)
+        write.csv(data, paste0(study_dir, filename, ".csv"), row.names=FALSE, fileEncoding="latin1")
         print_it(paste0(study_dir, filename, ".csv"), indent = 2)
 
         print_it("Set `study_dir` to the correct location if the above folder path is incorrect.", indent = 2)
@@ -62,7 +62,7 @@ save_extraction <- function(data, filename, study_dir = NULL, save_to_study_dir 
 
     if (save_to_extracted_data_dir) {
         # Save CSV file in Extracted survey folder
-        write.csv(data, paste0(extracted_data_dir, filename, ".csv"), row.names=FALSE)
+        write.csv(data, paste0(extracted_data_dir, filename, ".csv"), row.names=FALSE, fileEncoding="latin1")
         print_it(paste0(extracted_data_dir, filename, ".csv"), indent = 2)
 
         # Add extraction log
