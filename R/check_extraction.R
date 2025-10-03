@@ -17,13 +17,9 @@
 #' decision to ignore.
 #'
 #' @param dataset data frame of extraction to be checked: can be a single study or multiple studies.
-#' @param filename name of files to be checked against. Use the format "Country Study_name Year_duration". For example: "USA NHANES 2005-2016"
-#' @param study_dir location of study folder for reading extracted files
-#' @param extracted_data_dir location of `extracted survey` folder: must be specified when checking against extracted survey data
-#' @param read_from_extracted_data_dir whether to read from `extracted survey` folder (default TRUE). Set to FALSE to compare with the dataframe written in the study folder
 #' @return NULL
 #' @export
-check_extraction <- function(dataset, filename = NULL, study_dir = NULL, extracted_data_dir = NULL, read_from_extracted_data_dir = TRUE) {
+check_extraction <- function(dataset) {
 
   # Load data:
 
@@ -353,11 +349,6 @@ check_extraction <- function(dataset, filename = NULL, study_dir = NULL, extract
     ## TODO: check unit variables: we can add correct units to the standard variable list - start from just the anthro/lipids/glucose variables
     #        eg anthro has to be metric (and cm instead of m), biomarkers have to be either mmol/L or mg/dL (I think we allow mg/dl too), a1c in % or mmol/mol
     ## TODO: check special characters in columns other than survey name
-
-    # Check for changes against previously extracted data
-    if (!is.null(filename)) {
-      check_data_changes(dat, filename, study_dir, extracted_data_dir, read_from_extracted_data_dir)
-    }
 
     print_it("DONE", "yellow")
   }
