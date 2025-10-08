@@ -1,6 +1,6 @@
 Package: ncdrisc
 Title: Useful functions for NCD Risk Factor Collaboration
-Version: 0.0.4
+Version: 0.0.4.93
 Authors@R: 
     c(person("Bin", "Zhou", , "b.zhou13@imperial.ac.uk", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1741-8628")),
