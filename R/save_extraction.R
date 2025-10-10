@@ -74,7 +74,7 @@ save_extraction <- function(data, filename,
 
         # Save CSV file in Extracted survey folder
         write.csv(data, paste0(extracted_data_dir, filename, ".csv"), row.names=FALSE, fileEncoding="latin1")
-        print_it("Set `extracted_data_dir` to the correct location if the following paths are incorrect.", 'cyan', indent = 2)
+        print_it("Set `extracted_data_dir` to the correct location if the following path is incorrect.", 'cyan', indent = 2)
         print_it(paste0(extracted_data_dir, filename, ".csv"), indent = 2)
 
         # Add extraction log
