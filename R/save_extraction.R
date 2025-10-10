@@ -53,6 +53,8 @@ save_extraction <- function(data, filename,
     print_it(version, indent = 2)
 
     if (save_to_study_dir) {
+        print_it("Set `study_dir` to the correct location if the following paths are incorrect.", 'cyan', indent = 2)
+
         # Save RData file in study folder for fast loading of extracted data in the future
         save(data, file = paste0(study_dir, filename, ".RData"))
         print_it("Files saved:", "yellow")
@@ -62,7 +64,6 @@ save_extraction <- function(data, filename,
         write.csv(data, paste0(study_dir, filename, ".csv"), row.names=FALSE, fileEncoding="latin1")
         print_it(paste0(study_dir, filename, ".csv"), indent = 2)
 
-        print_it("Set `study_dir` to the correct location if the above folder path is incorrect.", indent = 2)
     } else {
         print_it(paste0("Files are not saved in the study folder: ", study_dir), "yellow")
         print_it("Set `save_to_study_dir = TRUE` if the files should be written to the study folder.", indent = 2)
@@ -70,6 +71,8 @@ save_extraction <- function(data, filename,
     }
 
     if (save_to_extracted_data_dir) {
+        print_it("Set `extracted_data_dir` to the correct location if the following paths are incorrect.", 'cyan', indent = 2)
+
         # Save CSV file in Extracted survey folder
         write.csv(data, paste0(extracted_data_dir, filename, ".csv"), row.names=FALSE, fileEncoding="latin1")
         print_it(paste0(extracted_data_dir, filename, ".csv"), indent = 2)
