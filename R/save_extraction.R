@@ -9,14 +9,10 @@
 #' @param study_dir location of study folder for saving extracted files
 #' @param extracted_data_dir location of `extracted survey` folder: must be specified manually
 #' @param save_to_extracted_data_dir whether save extracted files to `extracted survey` folder
-#' @param archive_subdir location of the folder to save previous data extraction inside the `extracted survey` folder
-#' @param archive_suffix suffix to be appended to the archived data extraction: 'old' by default; date will always be appended
-#' @param archive_old_extraction whether previous data extraction should be archived
 #' @export
 save_extraction <- function(data, filename,
                             study_dir = NULL, save_to_study_dir = TRUE,
-                            extracted_data_dir = NULL, save_to_extracted_data_dir = TRUE,
-                            archive_subdir = NULL, archive_suffix = 'old', archive_old_extraction = FALSE) {
+                            extracted_data_dir = NULL, save_to_extracted_data_dir = TRUE) {
 
     # Specify study folder
     if (is.null(study_dir)) study_dir <- paste0(getwd(), "/")
