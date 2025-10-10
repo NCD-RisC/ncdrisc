@@ -23,7 +23,9 @@
 #' @param read_from_extracted_data_dir whether to read from `extracted survey` folder (default TRUE). Set to FALSE to compare with the dataframe written in the study folder
 #' @return NULL
 #' @export
-check_extraction <- function(dataset, filename = NULL, study_dir = NULL, extracted_data_dir = NULL, read_from_extracted_data_dir = TRUE) {
+check_extraction <- function(dataset, filename = NULL, study_dir = NULL,
+                             extracted_data_dir = "S:/Projects/HeightProject/Original dataset/Data/Surveys/Extracted Survey/",
+                             read_from_extracted_data_dir = TRUE) {
 
   # Load data:
 
