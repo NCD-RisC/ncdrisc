@@ -89,7 +89,7 @@ compare_dataframes <- function(new_data, comparison_data) {
 
   if (length(new_columns) > 0) {
     print_it("CAUTION - added columns:", "br_violet")
-    print(new_columns, indent = 2)
+    print_it(new_columns, indent = 2)
 
     # Save added columns dataframe to workspace to then run summary(added_columns) from the main script
     added_columns <<- new_data[, new_columns, drop = FALSE]
@@ -97,7 +97,7 @@ compare_dataframes <- function(new_data, comparison_data) {
 
   if (length(removed_columns) > 0) {
     print_it("CAUTION - removed columns:", "br_violet")
-    print(removed_columns, indent = 2)
+    print_it(removed_columns, indent = 2)
   }
 
   # Order datasets before value-by-value comparison
