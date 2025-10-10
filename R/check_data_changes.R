@@ -245,7 +245,7 @@ check_data_changes <- function(data, filename, study_dir = NULL, extracted_data_
     comparison_data <- read_extracted_df(filename, curr_dir)
 
     if (is.null(comparison_data)) {
-      print_it(paste("WARNING - file does not exist"), "br_violet")
+      print_it(paste("ERROR - file does not exist"), "br_red")
       return(invisible())
     }
 

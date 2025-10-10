@@ -1,10 +1,10 @@
 # ncdrisc 0.0.4.94
 
-* Updated file-reading logics in `check_data_chagnes()` in test branch
+* Updated logic of reading files in `check_data_chagnes()` in test branch
 
 # ncdrisc 0.0.4.93
 
-* Updated documentations
+* Created test brach with `check_data_changes()`
 
 # ncdrisc 0.0.4.92
 
