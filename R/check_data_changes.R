@@ -39,6 +39,9 @@ read_extracted_df <- function(filename, target_dir = NULL) {
 #' @param comparison_data data frame of previously extracted data
 compare_dataframes <- function(new_data, comparison_data) {
 
+  # flag for if any change was found
+  any_change_found <- FALSE
+
   # Store original comparison_data for debugging
   fixed_data <<- comparison_data
 
@@ -61,6 +64,7 @@ compare_dataframes <- function(new_data, comparison_data) {
   old_row_count <- nrow(comparison_data)
 
   if (new_row_count != old_row_count) {
+    any_change_found <- TRUE
     print_it("CAUTION - inconsistent number of rows:", "br_violet")
     print_it(paste("New:", new_row_count, "vs Old:", old_row_count), indent = 2)
   }
@@ -73,6 +77,7 @@ compare_dataframes <- function(new_data, comparison_data) {
   removed_columns <- setdiff(old_file_columns, new_file_columns)
 
   if (length(new_columns) > 0) {
+    any_change_found <- TRUE
     print_it("CAUTION - added columns:", "br_violet")
     print_it(new_columns, indent = 2)
 
@@ -81,6 +86,7 @@ compare_dataframes <- function(new_data, comparison_data) {
   }
 
   if (length(removed_columns) > 0) {
+    any_change_found <- TRUE
     print_it("CAUTION - removed columns:", "br_violet")
     print_it(removed_columns, indent = 2)
   }
@@ -152,6 +158,7 @@ compare_dataframes <- function(new_data, comparison_data) {
         # Count changes from or to NA
         na_to_nonNA_indices <- which(!is.na(new_column_data) & is.na(old_column_data))
         if (length(na_to_nonNA_indices) > 0) {
+          any_change_found <- TRUE
           print_it(paste("CAUTION -", length(na_to_nonNA_indices), "NA values changed to non-NA in column", column_name), "br_violet")
           # Show unique new values and their counts
           new_values_from_na <- new_column_data[na_to_nonNA_indices]
@@ -163,6 +170,7 @@ compare_dataframes <- function(new_data, comparison_data) {
         }
         nonNA_to_na_indices <- which(is.na(new_column_data) & !is.na(old_column_data))
         if (length(nonNA_to_na_indices) > 0) {
+          any_change_found <- TRUE
           print_it(paste("CAUTION -", length(nonNA_to_na_indices), "non-NA values changed to NA in column", column_name), "br_violet")
           # Show unique old values and their counts
           old_values_to_na <- old_column_data[nonNA_to_na_indices]
@@ -181,8 +189,10 @@ compare_dataframes <- function(new_data, comparison_data) {
           old_is_numeric <- is.numeric(old_column_data)
 
           if (new_is_numeric && !old_is_numeric) {
+            any_change_found <- TRUE
             stop(paste("ERROR - Column", column_name, "has incompatible data types: new data is numeric but old data is not"))
           } else if (!new_is_numeric && old_is_numeric) {
+            any_change_found <- TRUE
             stop(paste("ERROR - Column", column_name, "has incompatible data types: new data is not numeric but old data is numeric"))
           }
 
@@ -202,6 +212,7 @@ compare_dataframes <- function(new_data, comparison_data) {
           }
 
           if (length(value_diff_indices) > 0) {
+            any_change_found <- TRUE
             print_it(paste("CAUTION -", length(value_diff_indices), "values changed in", column_name), "br_violet")
 
             # Show unique cases and their counts
@@ -218,7 +229,7 @@ compare_dataframes <- function(new_data, comparison_data) {
     }
   }
 
-  return(invisible())
+  return(any_change_found)
 }
 
 
@@ -238,7 +249,7 @@ check_data_changes <- function(data, filename, study_dir = NULL, extracted_data_
   for (curr_dir in list(study_dir, extracted_data_dir)) {
     if (is.null(curr_dir)) next
 
-    print_it("Check changes in data in comparison with the following file", "yellow")
+    print_it("Checking changes in data in comparison with the following file...", "yellow")
     print_it(paste0(curr_dir, filename, ".csv"), indent = 2)
 
     # Load comparison data using read_extracted_df
@@ -250,7 +261,9 @@ check_data_changes <- function(data, filename, study_dir = NULL, extracted_data_
     }
 
     # Call compare_dataframes to do the actual comparison
-    compare_dataframes(data, comparison_data)
+    found_any <- compare_dataframes(data, comparison_data)
+
+    if (!found_any) print_it("No changes found", "yellow")
 
   }
 
