@@ -3,30 +3,15 @@
 #' Function to read previously extracted dataframe
 #'
 #' This function reads extracted data from the specified file path.
-#' By default it reads from the extracted survey folder. Set read_from_extracted_data_dir to FALSE to compare with the dataframe written in the study folder.
 #'
-#' @param filename name of files to be read. Use the format "Country Study_name Year_duration". For example: "USA NHANES 2005-2016"
-#' @param study_dir location of study folder for reading extracted files
-#' @param extracted_data_dir location of `extracted survey` folder: must be specified when read_from_extracted_data_dir is TRUE
-#' @param read_from_extracted_data_dir whether to read from `extracted survey` folder (default TRUE). Set to FALSE to compare with the dataframe written in the study folder
+#' @param filename name of file to be read without suffix
+#' @param target_dir location of study folder for reading extracted files; default is the current study folder
 #' @return data frame of previously extracted data, or NULL if not found
-read_extracted_df <- function(filename, study_dir = NULL, extracted_data_dir = NULL, read_from_extracted_data_dir = TRUE) {
-
-  # Specify extracted survey folder - required when reading from extracted survey
-  if (is.null(extracted_data_dir) & read_from_extracted_data_dir) {
-    stop('Please specify `extracted_data_dir = "S:/Projects/HeightProject/Original dataset/Data/Surveys/Extracted Survey/"` (or a custom location), or set `read_from_extracted_data_dir = FALSE`')
-  }
+read_extracted_df <- function(filename, target_dir = NULL) {
 
   # Specify study folder - only used when reading from study folder
-  if (is.null(study_dir) & !read_from_extracted_data_dir) {
-    study_dir <- paste0(getwd(), "/")
-  }
-
-  # Determine which directory to read from
-  if (read_from_extracted_data_dir) {
-    target_dir <- extracted_data_dir
-  } else {
-    target_dir <- study_dir
+  if (is.null(target_dir)) {
+    target_dir <- paste0(getwd(), "/")
   }
 
   # Read CSV file
@@ -89,7 +74,7 @@ compare_dataframes <- function(new_data, comparison_data) {
 
   if (length(new_columns) > 0) {
     print_it("CAUTION - added columns:", "br_violet")
-    print(new_columns, indent = 2)
+    print_it(new_columns, indent = 2)
 
     # Save added columns dataframe to workspace to then run summary(added_columns) from the main script
     added_columns <<- new_data[, new_columns, drop = FALSE]
@@ -97,7 +82,7 @@ compare_dataframes <- function(new_data, comparison_data) {
 
   if (length(removed_columns) > 0) {
     print_it("CAUTION - removed columns:", "br_violet")
-    print(removed_columns, indent = 2)
+    print_it(removed_columns, indent = 2)
   }
 
   # Order datasets before value-by-value comparison
@@ -233,7 +218,7 @@ compare_dataframes <- function(new_data, comparison_data) {
     }
   }
 
-  return(invisible(NULL))
+  return(invisible())
 }
 
 
@@ -247,20 +232,27 @@ compare_dataframes <- function(new_data, comparison_data) {
 #' @param filename name of files to be read. Use the format "Country Study_name Year_duration". For example: "USA NHANES 2005-2016"
 #' @param study_dir location of study folder for reading extracted files
 #' @param extracted_data_dir location of `extracted survey` folder: must be specified when read_from_extracted_data_dir is TRUE
-#' @param read_from_extracted_data_dir whether to read from `extracted survey` folder (default TRUE). Set to FALSE to compare with the dataframe written in the study folder
 #' @export
-check_data_changes <- function(data, filename, study_dir = NULL, extracted_data_dir = NULL, read_from_extracted_data_dir = TRUE) {
+check_data_changes <- function(data, filename, study_dir = NULL, extracted_data_dir = NULL) {
 
-  # Load comparison data using read_extracted_df
-  comparison_data <- read_extracted_df(filename, study_dir, extracted_data_dir, read_from_extracted_data_dir)
+  for (curr_dir in list(study_dir, extracted_data_dir)) {
+    if (is.null(curr_dir)) next
 
-  if (is.null(comparison_data)) {
-    print_it(paste("CAUTION -", filename, "does not exist among extracted surveys. Is this a new extraction?"), "br_violet")
-    return(invisible(NULL))
+    print_it("Check changes in data in comparison with the following file", "yellow")
+    print_it(paste0(curr_dir, filename, ".csv"), indent = 2)
+
+    # Load comparison data using read_extracted_df
+    comparison_data <- read_extracted_df(filename, curr_dir)
+
+    if (is.null(comparison_data)) {
+      print_it(paste("WARNING - file does not exist"), "br_violet")
+      return(invisible())
+    }
+
+    # Call compare_dataframes to do the actual comparison
+    compare_dataframes(data, comparison_data)
+
   }
 
-  print_it(paste(filename, "was previously extracted. Checking changes in data"), "yellow")
-
-  # Call compare_dataframes to do the actual comparison
-  compare_dataframes(data, comparison_data)
+  return(invisible())
 }

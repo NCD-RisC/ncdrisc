@@ -4,26 +4,16 @@
 \alias{read_extracted_df}
 \title{Function to read previously extracted dataframe}
 \usage{
-read_extracted_df(
-  filename,
-  study_dir = NULL,
-  extracted_data_dir = NULL,
-  read_from_extracted_data_dir = TRUE
-)
+read_extracted_df(filename, target_dir = NULL)
 }
 \arguments{
-\item{filename}{name of files to be read. Use the format "Country Study_name Year_duration". For example: "USA NHANES 2005-2016"}
+\item{filename}{name of file to be read without suffix}
 
-\item{study_dir}{location of study folder for reading extracted files}
-
-\item{extracted_data_dir}{location of \verb{extracted survey} folder: must be specified when read_from_extracted_data_dir is TRUE}
-
-\item{read_from_extracted_data_dir}{whether to read from \verb{extracted survey} folder (default TRUE). Set to FALSE to compare with the dataframe written in the study folder}
+\item{target_dir}{location of study folder for reading extracted files; default is the current study folder}
 }
 \value{
 data frame of previously extracted data, or NULL if not found
 }
 \description{
 This function reads extracted data from the specified file path.
-By default it reads from the extracted survey folder. Set read_from_extracted_data_dir to FALSE to compare with the dataframe written in the study folder.
 }
