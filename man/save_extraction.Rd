@@ -10,7 +10,10 @@ save_extraction(
   study_dir = NULL,
   save_to_study_dir = TRUE,
   extracted_data_dir = NULL,
-  save_to_extracted_data_dir = TRUE
+  save_to_extracted_data_dir = TRUE,
+  archive_subdir = NULL,
+  archive_suffix = "old",
+  archive_old_extraction = FALSE
 )
 }
 \arguments{
@@ -23,6 +26,12 @@ save_extraction(
 \item{extracted_data_dir}{location of \verb{extracted survey} folder: must be specified manually}
 
 \item{save_to_extracted_data_dir}{whether save extracted files to \verb{extracted survey} folder}
+
+\item{archive_subdir}{location of the folder to save previous data extraction inside the \verb{extracted survey} folder}
+
+\item{archive_suffix}{suffix to be appended to the archived data extraction: 'old' by default; date will always be appended}
+
+\item{archive_old_extraction}{whether previous data extraction should be archived}
 }
 \description{
 This function adds user information to extracted data, save extraction logs and save formatted extractions.

@@ -4,13 +4,7 @@
 \alias{check_data_changes}
 \title{Function to check for changes in data outputs}
 \usage{
-check_data_changes(
-  data,
-  filename,
-  study_dir = NULL,
-  extracted_data_dir = NULL,
-  read_from_extracted_data_dir = TRUE
-)
+check_data_changes(data, filename, study_dir = NULL, extracted_data_dir = NULL)
 }
 \arguments{
 \item{data}{data frame of new extraction data to be checked}
@@ -20,8 +14,6 @@ check_data_changes(
 \item{study_dir}{location of study folder for reading extracted files}
 
 \item{extracted_data_dir}{location of \verb{extracted survey} folder: must be specified when read_from_extracted_data_dir is TRUE}
-
-\item{read_from_extracted_data_dir}{whether to read from \verb{extracted survey} folder (default TRUE). Set to FALSE to compare with the dataframe written in the study folder}
 }
 \description{
 This function compares new extraction data against previously extracted survey data to identify changes and differences.
