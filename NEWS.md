@@ -1,3 +1,7 @@
+# ncdrisc 0.0.4.95
+
+* Releasing `check_data_chagnes` branch into master branch
+
 # ncdrisc 0.0.4.94
 
 * Updated logic of reading files in `check_data_chagnes()` in test branch
