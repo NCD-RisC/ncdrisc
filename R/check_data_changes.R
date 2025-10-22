@@ -3,30 +3,15 @@
 #' Function to read previously extracted dataframe
 #'
 #' This function reads extracted data from the specified file path.
-#' By default it reads from the extracted survey folder. Set read_from_extracted_data_dir to FALSE to compare with the dataframe written in the study folder.
 #'
-#' @param filename name of files to be read. Use the format "Country Study_name Year_duration". For example: "USA NHANES 2005-2016"
-#' @param study_dir location of study folder for reading extracted files
-#' @param extracted_data_dir location of `extracted survey` folder: must be specified when read_from_extracted_data_dir is TRUE
-#' @param read_from_extracted_data_dir whether to read from `extracted survey` folder (default TRUE). Set to FALSE to compare with the dataframe written in the study folder
+#' @param filename name of file to be read without suffix
+#' @param target_dir location of study folder for reading extracted files; default is the current study folder
 #' @return data frame of previously extracted data, or NULL if not found
-read_extracted_df <- function(filename, study_dir = NULL, extracted_data_dir = NULL, read_from_extracted_data_dir = TRUE) {
-
-  # Specify extracted survey folder - required when reading from extracted survey
-  if (is.null(extracted_data_dir) & read_from_extracted_data_dir) {
-    stop('Please specify `extracted_data_dir = "S:/Projects/HeightProject/Original dataset/Data/Surveys/Extracted Survey/"` (or a custom location), or set `read_from_extracted_data_dir = FALSE`')
-  }
+read_extracted_df <- function(filename, target_dir = NULL) {
 
   # Specify study folder - only used when reading from study folder
-  if (is.null(study_dir) & !read_from_extracted_data_dir) {
-    study_dir <- paste0(getwd(), "/")
-  }
-
-  # Determine which directory to read from
-  if (read_from_extracted_data_dir) {
-    target_dir <- extracted_data_dir
-  } else {
-    target_dir <- study_dir
+  if (is.null(target_dir)) {
+    target_dir <- paste0(getwd(), "/")
   }
 
   # Read CSV file
@@ -54,6 +39,9 @@ read_extracted_df <- function(filename, study_dir = NULL, extracted_data_dir = N
 #' @param comparison_data data frame of previously extracted data
 compare_dataframes <- function(new_data, comparison_data) {
 
+  # flag for if any change was found
+  any_change_found <- FALSE
+
   # Store original comparison_data for debugging
   fixed_data <<- comparison_data
 
@@ -76,6 +64,7 @@ compare_dataframes <- function(new_data, comparison_data) {
   old_row_count <- nrow(comparison_data)
 
   if (new_row_count != old_row_count) {
+    any_change_found <- TRUE
     print_it("CAUTION - inconsistent number of rows:", "br_violet")
     print_it(paste("New:", new_row_count, "vs Old:", old_row_count), indent = 2)
   }
@@ -88,16 +77,18 @@ compare_dataframes <- function(new_data, comparison_data) {
   removed_columns <- setdiff(old_file_columns, new_file_columns)
 
   if (length(new_columns) > 0) {
+    any_change_found <- TRUE
     print_it("CAUTION - added columns:", "br_violet")
-    print(new_columns, indent = 2)
+    print_it(new_columns, indent = 2)
 
     # Save added columns dataframe to workspace to then run summary(added_columns) from the main script
     added_columns <<- new_data[, new_columns, drop = FALSE]
   }
 
   if (length(removed_columns) > 0) {
+    any_change_found <- TRUE
     print_it("CAUTION - removed columns:", "br_violet")
-    print(removed_columns, indent = 2)
+    print_it(removed_columns, indent = 2)
   }
 
   # Order datasets before value-by-value comparison
@@ -167,6 +158,7 @@ compare_dataframes <- function(new_data, comparison_data) {
         # Count changes from or to NA
         na_to_nonNA_indices <- which(!is.na(new_column_data) & is.na(old_column_data))
         if (length(na_to_nonNA_indices) > 0) {
+          any_change_found <- TRUE
           print_it(paste("CAUTION -", length(na_to_nonNA_indices), "NA values changed to non-NA in column", column_name), "br_violet")
           # Show unique new values and their counts
           new_values_from_na <- new_column_data[na_to_nonNA_indices]
@@ -178,6 +170,7 @@ compare_dataframes <- function(new_data, comparison_data) {
         }
         nonNA_to_na_indices <- which(is.na(new_column_data) & !is.na(old_column_data))
         if (length(nonNA_to_na_indices) > 0) {
+          any_change_found <- TRUE
           print_it(paste("CAUTION -", length(nonNA_to_na_indices), "non-NA values changed to NA in column", column_name), "br_violet")
           # Show unique old values and their counts
           old_values_to_na <- old_column_data[nonNA_to_na_indices]
@@ -196,8 +189,10 @@ compare_dataframes <- function(new_data, comparison_data) {
           old_is_numeric <- is.numeric(old_column_data)
 
           if (new_is_numeric && !old_is_numeric) {
+            any_change_found <- TRUE
             stop(paste("ERROR - Column", column_name, "has incompatible data types: new data is numeric but old data is not"))
           } else if (!new_is_numeric && old_is_numeric) {
+            any_change_found <- TRUE
             stop(paste("ERROR - Column", column_name, "has incompatible data types: new data is not numeric but old data is numeric"))
           }
 
@@ -217,6 +212,7 @@ compare_dataframes <- function(new_data, comparison_data) {
           }
 
           if (length(value_diff_indices) > 0) {
+            any_change_found <- TRUE
             print_it(paste("CAUTION -", length(value_diff_indices), "values changed in", column_name), "br_violet")
 
             # Show unique cases and their counts
@@ -233,7 +229,7 @@ compare_dataframes <- function(new_data, comparison_data) {
     }
   }
 
-  return(invisible(NULL))
+  return(any_change_found)
 }
 
 
@@ -247,20 +243,29 @@ compare_dataframes <- function(new_data, comparison_data) {
 #' @param filename name of files to be read. Use the format "Country Study_name Year_duration". For example: "USA NHANES 2005-2016"
 #' @param study_dir location of study folder for reading extracted files
 #' @param extracted_data_dir location of `extracted survey` folder: must be specified when read_from_extracted_data_dir is TRUE
-#' @param read_from_extracted_data_dir whether to read from `extracted survey` folder (default TRUE). Set to FALSE to compare with the dataframe written in the study folder
 #' @export
-check_data_changes <- function(data, filename, study_dir = NULL, extracted_data_dir = NULL, read_from_extracted_data_dir = TRUE) {
+check_data_changes <- function(data, filename, study_dir = NULL, extracted_data_dir = NULL) {
 
-  # Load comparison data using read_extracted_df
-  comparison_data <- read_extracted_df(filename, study_dir, extracted_data_dir, read_from_extracted_data_dir)
+  for (curr_dir in list(study_dir, extracted_data_dir)) {
+    if (is.null(curr_dir)) next
 
-  if (is.null(comparison_data)) {
-    print_it(paste("CAUTION -", filename, "does not exist among extracted surveys. Is this a new extraction?"), "br_violet")
-    return(invisible(NULL))
+    print_it("Checking changes in data in comparison with the following file...", "yellow")
+    print_it(paste0(curr_dir, filename, ".csv"), indent = 2)
+
+    # Load comparison data using read_extracted_df
+    comparison_data <- read_extracted_df(filename, curr_dir)
+
+    if (is.null(comparison_data)) {
+      print_it(paste("ERROR - file does not exist"), "br_red")
+      return(invisible())
+    }
+
+    # Call compare_dataframes to do the actual comparison
+    found_any <- compare_dataframes(data, comparison_data)
+
+    if (!found_any) print_it("No changes found", "yellow")
+
   }
 
-  print_it(paste(filename, "was previously extracted. Checking changes in data"), "yellow")
-
-  # Call compare_dataframes to do the actual comparison
-  compare_dataframes(data, comparison_data)
+  return(invisible())
 }

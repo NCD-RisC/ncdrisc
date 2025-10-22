@@ -1,3 +1,19 @@
+# ncdrisc 0.0.4.94
+
+* Updated logic of reading files in `check_data_chagnes()` in test branch
+
+# ncdrisc 0.0.4.93
+
+* Created test brach with `check_data_changes()`
+
+# ncdrisc 0.0.4.92
+
+* Removed `check_data_changes()` function and moved to test branch
+
+# ncdrisc 0.0.4.91
+
+* Added `check_data_changes()` function
+
 # ncdrisc 0.0.4
 
 * Edited `save_extraction()` function to require explicit specification of `extracted survey` folder

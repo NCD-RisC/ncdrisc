@@ -1,6 +1,6 @@
 Package: ncdrisc
 Title: Useful functions for NCD Risk Factor Collaboration
-Version: 0.0.4.92
+Version: 0.0.4.94
 Authors@R: 
     c(person("Bin", "Zhou", , "b.zhou13@imperial.ac.uk", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1741-8628")),
@@ -14,7 +14,7 @@ Description: Useful functions for NCD-RisC team
 License: BSD 3-Clause license
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports:
     insight
 Depends: 
