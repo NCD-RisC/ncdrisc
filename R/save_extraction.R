@@ -50,6 +50,9 @@ save_extraction <- function(data, filename,
 
     if (save_to_study_dir) {
 
+        # append '/' if extracted_data_dir does not end with it
+        study_dir <- gsub('//$', '/', paste0(study_dir, '/'))
+
         # Save RData file in study folder for fast loading of extracted data in the future
         save(data, file = paste0(study_dir, filename, ".RData"))
         print_it("Files saved:", "yellow")
@@ -67,6 +70,9 @@ save_extraction <- function(data, filename,
     }
 
     if (save_to_extracted_data_dir) {
+
+        # append '/' if extracted_data_dir does not end with it
+        extracted_data_dir <- gsub('//$', '/', paste0(extracted_data_dir, '/'))
 
         # Save CSV file in Extracted survey folder
         write.csv(data, paste0(extracted_data_dir, filename, ".csv"), row.names=FALSE, fileEncoding="latin1")
