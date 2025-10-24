@@ -17,12 +17,17 @@
 #' * FD September 2025: added checks for hb altitude adjustment
 #'
 #' @param dataset data frame of extraction to be checked: can be a single study or multiple studies.
+#' @param new_extraction TRUE or FALSE for whether the extraction is a new one; if FALSE, comparison will be done with previous extraction; set to TRUE for new extraction
+#' @param filename name of files to be compared against. Use the format "Country Study_name Year_duration". For example: "USA NHANES 2005-2016"
+#' @param study_dir location of study folder for reading extracted files
+#' @param extracted_data_dir location of `extracted survey` folder: must be specified when checking against extracted survey data
 #' @return NULL
 #' @export
-check_extraction <- function(dataset) {
+check_extraction <- function(dataset, new_extraction = TRUE,
+                             filename = NULL, study_dir = NULL,
+                             extracted_data_dir = "S:/Projects/HeightProject/Original dataset/Data/Surveys/Extracted Survey/") {
 
-  # Load data:
-
+  ## Read data
   # standard country names
   # countrylist <- read.csv("S:/Projects/HeightProject/Original dataset/Covariates/country-list-2023-new.csv")
   countrylist <- ncdrisc::countrylist
@@ -55,10 +60,10 @@ check_extraction <- function(dataset) {
   }
 
   # Check each study separately
-  for (i in stud_id) {
-    dat <- subset(dataset, dataset$id_study == i)
+  for (unique_stud_id in stud_id) {
+    dat <- subset(dataset, dataset$id_study == unique_stud_id)
 
-    print_it(paste("CHECKING ",i), "yellow")
+    print_it(paste("CHECKING ",unique_stud_id), "yellow")
 
     # Fatal error: more than one unique values in metadata variables
     unique_value_lengths <- sapply(intersect(meta_var_list, names(dat)), function(v) length(unique(dat[[v]])))
@@ -68,15 +73,15 @@ check_extraction <- function(dataset) {
     }
 
     # Inconsistency: iso in id_study
-    if (any(unique(dat$iso) != substr(i, 1, 3))) {
+    if (any(unique(dat$iso) != substr(unique_stud_id, 1, 3))) {
       print_it("CHECK - inconsistent ISO with id_study:", "br_red")
-      print_it(paste(i, "vs", paste(unique(dat$iso), collapse = ', ')))
+      print_it(paste(unique_stud_id, "vs", paste(unique(dat$iso), collapse = ', ')))
     }
 
     # Fatal error: typo in iso and country name
     if (any(!unique(dat$iso) %in% countrylist$iso)) {
       print_it("CHECK - ISO not in country list:", "br_red")
-      print_it(paste(i, "vs", paste(unique(dat$iso), collapse = ', ')))
+      print_it(paste(unique_stud_id, "vs", paste(unique(dat$iso), collapse = ', ')))
     } else {
       if (any(!unique(dat$country) %in% countrylist$Country[countrylist$iso %in% unique(dat$iso)])) {
         print_it("CHECK - country name not in country list:", "br_red")
@@ -85,15 +90,15 @@ check_extraction <- function(dataset) {
     }
 
     # Inconsistency: mid_year in id_study
-    if (any(unique(dat$mid_year) != as.numeric(substr(i, 5, 8)))) {
+    if (any(unique(dat$mid_year) != as.numeric(substr(unique_stud_id, 5, 8)))) {
       print_it("CHECK - inconsistent mid_year with id_study:", "br_red")
-      print_it(paste(i, "vs", paste(unique(dat$mid_year), collapse = ', ')))
+      print_it(paste(unique_stud_id, "vs", paste(unique(dat$mid_year), collapse = ', ')))
     }
 
     # Inconsistency: survey_short in id_study
-    if (any(unique(dat$survey_short) != substr(i, 10, nchar(i)))) {
+    if (any(unique(dat$survey_short) != substr(unique_stud_id, 10, nchar(unique_stud_id)))) {
       print_it("CHECK - inconsistent survey_short with id_study:", "br_red")
-      print_it(paste(i, "vs", paste(unique(dat$survey_short), collapse = ', ')))
+      print_it(paste(unique_stud_id, "vs", paste(unique(dat$survey_short), collapse = ', ')))
     }
 
     # Fatal error: non-standard coding in survey_type
@@ -351,5 +356,21 @@ check_extraction <- function(dataset) {
     ## TODO: check special characters in columns other than survey name
 
     print_it("DONE", "yellow")
+
   }
+
+  ## Check for changes against previously extracted data
+  if (new_extraction) {
+    print_it("No comparison to previous extraction was done. If a comparison is needed, set `new_extraction = FALSE` and rerun.", "cyan")
+    return(invisible())
+  }
+
+  if (is.null(filename)) {
+    print_it("No comparison to previous extraction was done. Set `filename` and rerun.", "cyan")
+    return(invisible())
+  }
+
+  if (is.null(study_dir)) study_dir <- paste0(getwd(), "/")
+  check_data_changes(dat, filename, study_dir, extracted_data_dir)
+
 }

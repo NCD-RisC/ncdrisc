@@ -4,10 +4,25 @@
 \alias{check_extraction}
 \title{Function to check extractions before saving}
 \usage{
-check_extraction(dataset)
+check_extraction(
+  dataset,
+  new_extraction = TRUE,
+  filename = NULL,
+  study_dir = NULL,
+  extracted_data_dir =
+    "S:/Projects/HeightProject/Original dataset/Data/Surveys/Extracted Survey/"
+)
 }
 \arguments{
 \item{dataset}{data frame of extraction to be checked: can be a single study or multiple studies.}
+
+\item{new_extraction}{TRUE or FALSE for whether the extraction is a new one; if FALSE, comparison will be done with previous extraction; set to TRUE for new extraction}
+
+\item{filename}{name of files to be compared against. Use the format "Country Study_name Year_duration". For example: "USA NHANES 2005-2016"}
+
+\item{study_dir}{location of study folder for reading extracted files}
+
+\item{extracted_data_dir}{location of \verb{extracted survey} folder: must be specified when checking against extracted survey data}
 }
 \description{
 This function checks formatted extractions and print out error, check and caution messages

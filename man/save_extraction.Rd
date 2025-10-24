@@ -7,17 +7,22 @@
 save_extraction(
   data,
   filename,
-  extracted_data_dir =
-    "S:/Projects/HeightProject/Original dataset/Data/Surveys/Extracted Survey/"
+  study_dir = NULL,
+  save_to_study_dir = TRUE,
+  extracted_data_dir = NULL,
+  save_to_extracted_data_dir = TRUE
 )
 }
 \arguments{
 \item{data}{data frame to be saved}
 
-\item{filename}{name of files to be saved. Use the format "Country Study_name Year_duration". For example:
-"USA NHANES 2005-2016"}
+\item{filename}{name of files to be saved. Use the format "Country Study_name Year_duration". For example: "USA NHANES 2005-2016"}
 
-\item{extracted_data_dir}{location of extracted survey folder}
+\item{study_dir}{location of study folder for saving extracted files}
+
+\item{extracted_data_dir}{location of \verb{extracted survey} folder: must be specified manually}
+
+\item{save_to_extracted_data_dir}{whether save extracted files to \verb{extracted survey} folder}
 }
 \description{
 This function adds user information to extracted data, save extraction logs and save formatted extractions.
