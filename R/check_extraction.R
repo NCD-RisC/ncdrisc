@@ -371,6 +371,6 @@ check_extraction <- function(dataset, new_extraction = TRUE,
   }
 
   if (is.null(study_dir)) study_dir <- paste0(getwd(), "/")
-  check_data_changes(dat, filename, study_dir, extracted_data_dir)
+  check_data_changes(dataset, filename, study_dir, extracted_data_dir)
 
 }
