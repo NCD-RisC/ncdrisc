@@ -1,3 +1,11 @@
+# ncdrisc 0.0.4.97
+
+* Automatically add slash to end of file path in `save_extraction()`
+
+# ncdrisc 0.0.4.96
+
+* Bug fix
+
 # ncdrisc 0.0.4.95
 
 * Releasing `check_data_chagnes` branch into master branch
