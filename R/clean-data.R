@@ -361,7 +361,7 @@ clean_continuous <- function(var, var_name, minv, maxv) {
 #' @seealso [clean_data()]
 #' @export
 clean_categorical <- function(var, var_name, values) {
-  clean_list <- which(!var %in% values)
+  clean_list <- which(!var %in% values & !is.na(var))
   print_message(var_name, clean_list, var)
   return(clean_list)
 }
