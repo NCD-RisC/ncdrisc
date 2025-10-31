@@ -2,10 +2,29 @@
 % Please edit documentation in R/clean-data.R
 \name{convert_unit}
 \alias{convert_unit}
-\title{convert units}
+\title{Convert variable units}
 \usage{
-convert_unit(data, variable)
+convert_unit(data, variable, user_conversion_func = NULL)
+}
+\arguments{
+\item{data}{The data frame to be cleaned.}
+
+\item{variable}{A name string of the variable to be converted. If \code{unit == "EXClUDE"}, all values are set to NA. Currently supported variables and units are:
+\itemize{
+\item height, heightX, wasit, wasitX, hip, hipX: "inch", "m", "mm" -> "cm"
+\item weight, weightX: "pound", "lbs" -> "kg"
+\item fgl: "mg/dL", "mg\%" -> "mmol/L"; also converts to plasma equivalent if \code{is_plasma == 0}
+\item ppg: "mg/dL", "mg\%" -> "mmol/L"; also sets ppg values to NA if \code{is_plasma_ppg == 0}
+\item hba1c: "mmol/mol" -> "\%"
+\item tc, ldl, hdl, trg: "mg/dL", "mg\%" -> "mmol/L"
+}}
+
+\item{user_conversion_func}{A converstion function, if not differnt to the above
+For example: to convert g to kg, set \code{user_conversion_func = function(x) x * 0.001}}
+}
+\value{
+A variable with converted values based on standard unit
 }
 \description{
-convert units
+Converts values of variables based on standard units
 }

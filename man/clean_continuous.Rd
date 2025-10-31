@@ -21,3 +21,6 @@ Cleaning a continuous variable
 \examples{
 fgl_clean <- clean_continuous(data[[variable]], variable, 2, 30)
 }
+\seealso{
+\code{\link[=clean_data]{clean_data()}}
+}

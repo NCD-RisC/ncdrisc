@@ -2,23 +2,41 @@
 % Please edit documentation in R/clean-data.R
 \name{clean_data}
 \alias{clean_data}
-\title{cleaning a specific variable in the data frame}
+\title{General cleaning function}
 \usage{
 clean_data(data, variable)
 }
 \arguments{
-\item{data}{The data frame to be cleaned}
+\item{data}{The data frame to be cleaned.}
 
-\item{variable}{The name of the variable to be cleaned}
+\item{variable}{The name string of the variable to be cleaned. Currently supported variables:
+\itemize{
+\item sex, age
+\item height, height1, height2, height3
+\item weight, weight1, weight2, weight3
+\item waist, waist1, waist2, waist3
+\item hip, hip1, hip2, hip3
+\item bmi, whr, whtr
+\item fgl, ppg, ha1c
+\item sbp1-13, sbp_avg, dbp1-13, dbp_avg
+\item chol, hdl, ldl, trg
+\item is_pregnant, is_pregnant_exam, is_urban, is_plasma, is_plasma_ppg
+\item self_diab, drug_diab, drug_diab_pill, drug_diab_insu
+\item self_hyper, self_hyper_12mos, self_hyper_preg, drug_hyper, drug_presc, drug_bp
+\item self_chol, drug_chol, drug_chol_stat, drug_chol_fibr
+}}
 }
 \value{
-a cleaned variable
+returns a cleaned variable
 }
 \description{
-cleaning a specific variable in the data frame
+Cleans a specific variable in the data frame. For fgl and ppg, the v
 }
 \examples{
 data$age_clean <- clean_data(data, 'age');
 data$bmi_clean <- clean_data(data, 'bmi');
 data$fgl_clean <- clean_data(data, 'fgl');
+}
+\seealso{
+\code{\link[=clean_data_index]{clean_data_index()}}, \code{\link[=clean_categorical]{clean_categorical()}}, \code{\link[=clean_continuous]{clean_continuous()}}, \code{\link[=convert_unit]{convert_unit()}}
 }

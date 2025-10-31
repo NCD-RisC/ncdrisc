@@ -2,22 +2,25 @@
 % Please edit documentation in R/clean-data.R
 \name{clean_data_index}
 \alias{clean_data_index}
-\title{cleaning a specific variable in the data frame}
+\title{Get index of cleaned variables}
 \usage{
 clean_data_index(data, variable)
 }
 \arguments{
-\item{data}{The data frame to be cleaned}
+\item{data}{The data frame to be cleaned.}
 
-\item{variable}{The name of the variable to be cleaned}
+\item{variable}{The name of the variable to be cleaned.}
 }
 \value{
-A index of the values in the variable that should be cleaned
+A index of the values in the variable that should be cleaned.
 }
 \description{
-cleaning a specific variable in the data frame
+Cleans a specific variable in the data frame
 }
 \examples{
 cleaned_index <- clean_data_index(data, 'age');
 cleaned_index <- clean_data_index(data, 'bmi');
+}
+\seealso{
+\code{\link[=clean_data]{clean_data()}}
 }

@@ -6,6 +6,16 @@
 \usage{
 clean_categorical(var, var_name, values)
 }
+\arguments{
+\item{var}{a vector to be cleaned}
+
+\item{var_name}{the name of the variable being cleaned}
+
+\item{values}{a vector of values that are valid for thie categorical value, e.g., c(0,1)}
+}
 \description{
 Cleaning a categorical variable
+}
+\seealso{
+\code{\link[=clean_data]{clean_data()}}
 }
