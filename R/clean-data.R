@@ -1,4 +1,8 @@
 
+
+#### TODO: Print by-study summary of % cleaned in a log file; in the console print negative values separately in the message
+#### TODO: add is_fasting and fasting_time to clean_data
+
 #' General cleaning function
 #' @description Cleans a specific variable in the data frame. For fgl and ppg, the v
 #' @param data The data frame to be cleaned.
@@ -37,7 +41,6 @@ clean_data <- function(data, variable) {
   v[clean_index] <- NA
   return(v)
 }
-
 
 #' Get index of cleaned variables
 #' @description Cleans a specific variable in the data frame
