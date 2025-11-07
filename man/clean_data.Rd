@@ -4,7 +4,7 @@
 \alias{clean_data}
 \title{General cleaning function}
 \usage{
-clean_data(data, variable)
+clean_data(data, variable, omit_values = c())
 }
 \arguments{
 \item{data}{The data frame to be cleaned.}
@@ -25,6 +25,8 @@ clean_data(data, variable)
 \item self_hyper, self_hyper_12mos, self_hyper_preg, drug_hyper, drug_presc, drug_bp
 \item self_chol, drug_chol, drug_chol_stat, drug_chol_fibr
 }}
+
+\item{omit_values}{A list of non-NA values known to be used for missing data, which will be ignored when printing percentage cleaned.}
 }
 \value{
 returns a cleaned variable
@@ -36,6 +38,7 @@ Cleans a specific variable in the data frame. For fgl and ppg, the v
 data$age_clean <- clean_data(data, 'age');
 data$bmi_clean <- clean_data(data, 'bmi');
 data$fgl_clean <- clean_data(data, 'fgl');
+data$height_clean <- clean_data(data, 'height', c(-99,-1,0,999));
 }
 \seealso{
 \code{\link[=clean_data_index]{clean_data_index()}}, \code{\link[=clean_categorical]{clean_categorical()}}, \code{\link[=clean_continuous]{clean_continuous()}}, \code{\link[=convert_unit]{convert_unit()}}
