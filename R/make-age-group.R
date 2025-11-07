@@ -86,6 +86,8 @@ make_age_group <- function(age, age_design_min, age_design_max, anthro = FALSE) 
   return(data.frame(age_mean, age_group, agemin = age_min, agemax = age_max))
 }
 
+#' Generate age group for anthro data
+#' @seealso [make_age_group()]
 #' @export
 make_age_group_anthro <- function(...) {
   return(make_age_group(..., anthro = TRUE))

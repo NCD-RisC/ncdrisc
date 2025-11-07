@@ -1,4 +1,7 @@
 
+# TODO: add a new function for cleaning age for out of age range
+# TODO: add markers for reasons cleaned in 'dropped' variable as before
+
 #' General cleaning function
 #' @description Cleans a specific variable in the data frame. For fgl and ppg, the v
 #' @param data The data frame to be cleaned.
