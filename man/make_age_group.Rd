@@ -14,7 +14,7 @@ make_age_group(age, age_design_min, age_design_max, anthro = FALSE)
 \item{age_design_max}{A vector of number.}
 }
 \value{
-The 10-year age group and corresponding mean age of \code{age} accounting for \code{age_design_min} and \code{age_disgn_max}.
+The 10-year age group and corresponding mean age of \code{age} accounting for \code{age_design_min} and \code{age_design_max}.
 }
 \description{
 Generate age group for each individual accounting for the age range of study
