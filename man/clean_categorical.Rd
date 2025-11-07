@@ -4,7 +4,7 @@
 \alias{clean_categorical}
 \title{Cleaning a categorical variable}
 \usage{
-clean_categorical(var, var_name, values)
+clean_categorical(var, var_name, values, id_study)
 }
 \arguments{
 \item{var}{a vector to be cleaned}

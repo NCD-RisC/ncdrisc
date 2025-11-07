@@ -4,7 +4,7 @@
 \alias{clean_continuous}
 \title{Cleaning a continuous variable}
 \usage{
-clean_continuous(var, var_name, minv, maxv)
+clean_continuous(var, var_name, minv, maxv, id_study)
 }
 \arguments{
 \item{var}{a vector to be cleaned}

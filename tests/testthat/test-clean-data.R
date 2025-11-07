@@ -15,6 +15,15 @@ test_that("age-specific anthro cleaning works", {
 
 })
 
+test_that("pre-cleaning works", {
+  xx <- example_data
+  xx$height[1] <- 999
+  xx$height[2] <- -99
+  xx2 <- clean_data(xx, 'height', omit_values = c(999,-99))
+  expect_equal(sum(xx2 %in% c(999)), 0)
+
+})
+
 test_that("categorical cleaning works", {
   sex <- clean_data(example_data, 'sex')
   expect_equal(as.vector(table(sex, exclude=NULL)), c(4557,4697))
