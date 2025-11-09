@@ -4,12 +4,12 @@
 \alias{clean_data}
 \title{General cleaning function}
 \usage{
-clean_data(data, variable, known_values_for_missing_data = c())
+clean_data(data, var_name, known_values_for_missing_data = c())
 }
 \arguments{
 \item{data}{The data frame to be cleaned.}
 
-\item{variable}{The name string of the variable to be cleaned. Currently supported variables:
+\item{var_name}{The name string of the variable to be cleaned. Currently supported variables:
 \itemize{
 \item sex, age
 \item height, height1, height2, height3
