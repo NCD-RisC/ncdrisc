@@ -98,8 +98,8 @@ convert_unit <- function(data, variable, user_conversion_func = NULL) {
             data[[variable]][list] <- func(data[[variable]][list])
             switch(u,
                    EXCLUDE =
-                     message(paste("Number of", variable, "data excluded:", length(list), "rows in", n_study, "studies")),
-                   message(paste("Number of", variable, "data in", u, "converted:", length(list), "rows in", n_study, "studies"))
+                     cat(paste("Number of", variable, "data excluded:", length(list), "rows in", n_study, "studies\n")),
+                   cat(paste("Number of", variable, "data in", u, "converted:", length(list), "rows in", n_study, "studies\n"))
             )
           }}}
     } else {
@@ -112,7 +112,7 @@ convert_unit <- function(data, variable, user_conversion_func = NULL) {
       if (length(list)>0) {
         n_study <- length(unique(data$id_study[list]))
         data[[variable]][list] <- data[[variable]][list] * 1.066 + 0.102
-        message(paste("Number of fgl data converted from whole-blood values:", length(list), "rows in", n_study, "studies"))
+        cat(paste("Number of fgl data converted from whole-blood values:", length(list), "rows in", n_study, "studies\n"))
       }
     }
     if (unit_var == 'unit_ppg' & 'is_plasma_ppg' %in% names(data)) {
@@ -120,7 +120,7 @@ convert_unit <- function(data, variable, user_conversion_func = NULL) {
       if (length(list)>0) {
         n_study <- length(unique(data$id_study[list]))
         data[[variable]][list] <- NA
-        message(paste("Number of ppg data in whole-blood values excluded:", length(list), "rows in", n_study, "studies"))
+        cat(paste("Number of ppg data in whole-blood values excluded:", length(list), "rows in", n_study, "studies\n"))
       }
     }
   }

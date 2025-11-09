@@ -31,3 +31,17 @@ test_that("categorical cleaning works", {
   cat1 <- clean_data(example_data, 'self_diab')
   expect_equal(as.vector(table(cat1, exclude=NULL)), c(8000,893,361))
 })
+
+
+test_that("age range cleaning works", {
+  agemin <- ifelse(example_data$sex == 1, example_data$age_min_anthro_M, example_data$age_min_anthro_F)
+  agemax <- ifelse(example_data$sex == 1, example_data$age_max_anthro_M, example_data$age_max_anthro_F)
+
+  age_cleaned1 <- clean_age_range(example_data$age, example_data$id_study, agemin, agemax)
+
+  age_cleaned2 <- example_data$age
+  age_cleaned2[which(age_cleaned2 < agemin | age_cleaned2 > agemax)] <- NA
+
+  expect_equal(identical(age_cleaned1, age_cleaned2), TRUE)
+
+})

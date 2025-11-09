@@ -163,8 +163,8 @@ print_message <- function(var_name, clean_list, var, id_study, message = NULL) {
   } else {
     cat(paste("Percentage Cleaned (No. of cleaned/No. of non-NAs):", var_name, "(%)\n"))
     cln.table <- table(id_study[clean_list])/table(id_study[!is.na(var)])*100
-    cat(sort(round(cln.table[which(cln.table!=Inf&cln.table>0)],2), decreasing=TRUE))
-    cat("\n\n")
+    print(sort(round(cln.table[which(cln.table!=Inf&cln.table>0)],2), decreasing=TRUE))
+    cat("\n")
   }
 }
 
