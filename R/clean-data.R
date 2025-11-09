@@ -1,7 +1,4 @@
 
-# TODO: add a new function for cleaning age for out of age range
-# TODO: add markers for reasons cleaned in 'dropped' variable as before
-
 #' General cleaning function
 #' @description Cleans a specific variable in the data frame. For fgl and ppg, the v
 #' @param data The data frame to be cleaned.
@@ -19,7 +16,7 @@
 #' * self_diab, drug_diab, drug_diab_pill, drug_diab_insu
 #' * self_hyper, self_hyper_12mos, self_hyper_preg, drug_hyper, drug_presc, drug_bp
 #' * self_chol, drug_chol, drug_chol_stat, drug_chol_fibr
-#' @param omit_values A list of non-NA values known to be used for missing data, which will be ignored when printing percentage cleaned.
+#' @param known_values_for_missing_data A list of non-NA values known to be used for missing data, which will be ignored when printing percentage cleaned.
 #'
 #' @return returns a cleaned variable
 #' @seealso [clean_data_index()], [clean_categorical()], [clean_continuous()], [convert_unit()]
@@ -29,16 +26,16 @@
 #' data$fgl_clean <- clean_data(data, 'fgl');
 #' data$height_clean <- clean_data(data, 'height', c(-99,-1,0,999));
 #' @export
-clean_data <- function(data, variable, omit_values = c() ) {
+clean_data <- function(data, variable, known_values_for_missing_data = c() ) {
 
-  # set values in `omit_values` list to NA
-  clean_list <- which(data[[variable]] %in% omit_values)
+  # set values in `known_values_for_missing_data` list to NA
+  clean_list <- which(data[[variable]] %in% known_values_for_missing_data)
   if (length(clean_list) > 0) {
     cat(paste0('Pre-cleaning variable "', var_name, '":\n'))
     cat(paste0('  ', length(clean_list), ' of ', sum(!is.na(var)), ' removed containing the following values\n'))
-    cat(paste0('  ', paste(omit_values, collapse = ', '), '\n'))
+    cat(paste0('  ', paste(known_values_for_missing_data, collapse = ', '), '\n'))
 
-    # set values in `omit_values` to NA
+    # set values in `known_values_for_missing_data` to NA
     data[clean_list, variable] <- NA
   }
 

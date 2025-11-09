@@ -4,7 +4,7 @@
 \alias{clean_data}
 \title{General cleaning function}
 \usage{
-clean_data(data, variable, omit_values = c())
+clean_data(data, variable, known_values_for_missing_data = c())
 }
 \arguments{
 \item{data}{The data frame to be cleaned.}
@@ -26,7 +26,7 @@ clean_data(data, variable, omit_values = c())
 \item self_chol, drug_chol, drug_chol_stat, drug_chol_fibr
 }}
 
-\item{omit_values}{A list of non-NA values known to be used for missing data, which will be ignored when printing percentage cleaned.}
+\item{known_values_for_missing_data}{A list of non-NA values known to be used for missing data, which will be ignored when printing percentage cleaned.}
 }
 \value{
 returns a cleaned variable
