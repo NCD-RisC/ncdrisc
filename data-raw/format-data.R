@@ -20,3 +20,12 @@ use_data(high_altitude_countries)
 # example dataset for testing
 example_data <- read.csv("data-raw/USA NHANES 2017-2018.csv")
 use_data(example_data)
+
+# outputs to check against for make_age_group function (do not rerun)
+agemin <- ifelse(example_data$sex == 1, example_data$age_min_anthro_M, example_data$age_min_anthro_F)
+agemax <- ifelse(example_data$sex == 1, example_data$age_max_anthro_M, example_data$age_max_anthro_F)
+age <- clean_age_range(example_data$age, example_data$id_study, agemin, agemax)
+age_group_output1 <- make_age_group(age, agemin, agemax)
+age_group_output2 <- make_age_group_anthro(age, agemin, agemax)
+use_data(age_group_output1)
+use_data(age_group_output2)

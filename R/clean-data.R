@@ -156,12 +156,11 @@ print_simple_message <- function(var_name, clean_list, var) {
 
 # print messages for percent cleaned by study
 print_message <- function(var_name, clean_list, var, id_study, message = NULL) {
-  if (is.null(message)) message <- '' else paste0(' ', message)
-  cat(paste0('Cleaning variable "', var_name, message, '":\n'))
+  if (is.null(message)) message <- '' else message <- paste0(' ', message)
+  cat(paste0("Percentage cleaned (No. of cleaned/No. of non-NAs): ", var_name, message, " (%)\n"))
   if (length(clean_list)==0) {
     cat("  No records cleaned\n")
   } else {
-    cat(paste("Percentage Cleaned (No. of cleaned/No. of non-NAs):", var_name, "(%)\n"))
     cln.table <- table(id_study[clean_list])/table(id_study[!is.na(var)])*100
     print(sort(round(cln.table[which(cln.table!=Inf&cln.table>0)],2), decreasing=TRUE))
     cat("\n")
@@ -303,3 +302,42 @@ clean_preg <- function(var, var_name, age, sex, id_study) {
     clean_list <- union(clean_list, clean_list1)
     return(clean_list)
 }
+
+
+
+#' Clean age based on age range
+#'
+#' @param age A vector of number.
+#' @param id_study A vector of id_study for message purpose.
+#' @param age_design_min A vector of number.
+#' @param age_design_max A vector of number.
+#' @return A cleaned \code{age} vector accounting for \code{age_design_min} and \code{age_design_max}.
+#'
+#' @example
+#' data$age_min <- with(data, ifelse(sex=="male", age_min_anthro_M, age_min_anthro_F)) # use appropriate variables depending on purpose
+#' data$age_max <- with(data, ifelse(sex=="male", age_max_anthro_M, age_max_anthro_F))
+#' age_clean <- clean_age_range(data$age, data$age_min, data$age_max)
+#'
+#' @export
+clean_age_range <- function(age, id_study, age_design_min, age_design_max) {
+
+  # check dimension
+  if ((length(age_design_min) != 1 & length(age_design_min) != length(age)) | (length(age_design_max) != 1 & length(age_design_max) != length(age))) {
+    stop('Check dimension of age_design_min, age_design_max, age: the first two should either have length of 1 or the same length as age')
+  }
+  # check age range values
+  if (any(is.na(age_design_min)) | any(is.na(age_design_max))) {
+    stop('NA values not allowed in age_design_min and age_design_max')
+  }
+
+  if (length(age_design_min) == 1) age_design_min <- rep(age_design_min, length(age))
+  if (length(age_design_max) == 1) age_design_max <- rep(age_design_max, length(age))
+
+  # set age to NA for those outside of min/max
+  clean_list <- which((age > age_design_max) | (age < age_design_min))
+  print_message('age', clean_list, age, id_study, message = 'outside design age range')
+
+  age[clean_list] <- NA
+  return(age)
+}
+
