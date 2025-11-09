@@ -2,6 +2,7 @@
 
 export(check_data_changes)
 export(check_extraction)
+export(clean_age_range)
 export(clean_categorical)
 export(clean_continuous)
 export(clean_data)
