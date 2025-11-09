@@ -2,7 +2,7 @@
 #' General cleaning function
 #' @description Cleans a specific variable in the data frame. For fgl and ppg, the v
 #' @param data The data frame to be cleaned.
-#' @param variable The name string of the variable to be cleaned. Currently supported variables:
+#' @param var_name The name string of the variable to be cleaned. Currently supported variables:
 #' * sex, age
 #' * height, height1, height2, height3
 #' * weight, weight1, weight2, weight3
@@ -26,27 +26,27 @@
 #' data$fgl_clean <- clean_data(data, 'fgl');
 #' data$height_clean <- clean_data(data, 'height', c(-99,-1,0,999));
 #' @export
-clean_data <- function(data, variable, known_values_for_missing_data = c() ) {
+clean_data <- function(data, var_name, known_values_for_missing_data = c() ) {
 
   # set values in `known_values_for_missing_data` list to NA
-  clean_list <- which(data[[variable]] %in% known_values_for_missing_data)
+  clean_list <- which(data[[var_name]] %in% known_values_for_missing_data)
   if (length(clean_list) > 0) {
     cat(paste0('Pre-cleaning variable "', var_name, '":\n'))
-    cat(paste0('  ', length(clean_list), ' of ', sum(!is.na(var)), ' removed containing the following values\n'))
+    cat(paste0('  ', length(clean_list), ' of ', sum(!is.na(data[[var_name]])), ' removed containing the following values\n'))
     cat(paste0('  ', paste(known_values_for_missing_data, collapse = ', '), '\n'))
 
     # set values in `known_values_for_missing_data` to NA
-    data[clean_list, variable] <- NA
+    data[clean_list, var_name] <- NA
   }
 
   # convert unit
   # convert whole-blood to plasma equivalent for FPG (and exclude for PPG)
-  data <- convert_unit(data, variable)
+  data <- convert_unit(data, var_name)
 
   # clean data
-  clean_index <- clean_data_index(data, variable)
+  clean_index <- clean_data_index(data, var_name)
 
-  v <- data[[variable]]
+  v <- data[[var_name]]
   v[clean_index] <- NA
   return(v)
 }

@@ -19,7 +19,7 @@ test_that("pre-cleaning works", {
   xx <- example_data
   xx$height[1] <- 999
   xx$height[2] <- -99
-  xx2 <- clean_data(xx, 'height', omit_values = c(999,-99))
+  xx2 <- clean_data(xx, 'height', known_values_for_missing_data = c(999,-99))
   expect_equal(sum(xx2 %in% c(999)), 0)
 
 })
