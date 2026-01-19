@@ -20,7 +20,7 @@ read_extracted_df <- function(filename, target_dir = NULL) {
   # Check if CSV file exists
   if (file.exists(csv_path)) {
     tryCatch({
-      return(read.csv(csv_path, fileEncoding="latin1"))
+      return(read.csv(csv_path))
     }, error = function(e) {
       return(NULL)
     })
