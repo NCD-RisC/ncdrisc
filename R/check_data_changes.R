@@ -21,7 +21,7 @@ read_extracted_df <- function(filename, target_dir = NULL) {
   if (file.exists(csv_path)) {
     tryCatch({
       df_latin1 <- read.csv(csv_path, fileEncoding = "latin1")
-      df_utf8 <- read.csv(csv_path)
+      df_utf8 <- read.csv(csv_path, fileEncoding = "UTF-8")
 
       if (nrow(df_latin1) != nrow(df_utf8)) {
         print_it("(read as UTF-8)", "yellow")
@@ -51,16 +51,17 @@ compare_dataframes <- function(new_data, comparison_data) {
   # flag for if any change was found
   any_change_found <- FALSE
   
-  # Convert character columns to UTF-8 for consistent comparison
-  convert_to_utf8 <- function(df) {
-    df[] <- lapply(df, function(x) {
-      if (is.character(x)) enc2utf8(x)
-      else x
-    })
+  # Convert character columns to latin1 for consistent comparison
+  convert_to_latin1 <- function(df) {
+    for (col in names(df)) {
+      if (is.character(df[[col]])) {
+        df[[col]] <- iconv(df[[col]], from = "UTF-8", to = "latin1", sub = "")
+      }
+    }
     return(df)
   }
-  new_data <- convert_to_utf8(new_data)
-  comparison_data <- convert_to_utf8(comparison_data)
+  new_data <- convert_to_latin1(new_data)
+  comparison_data <- convert_to_latin1(comparison_data)
 
   # Get numerical variable names
   numeric_var_list <- as.character(std_names_list$Name[which(std_names_list$Type == "numeric")])
