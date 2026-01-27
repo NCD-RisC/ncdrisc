@@ -50,19 +50,17 @@ compare_dataframes <- function(new_data, comparison_data) {
 
   # flag for if any change was found
   any_change_found <- FALSE
-
-  # Convert both datasets to latin1
-  new_data[] <- lapply(new_data, function(x) {
-    if (is.character(x)) iconv(x, from = "latin1", to = "UTF-8", sub = "")
-    else x
-  })
-  comparison_data[] <- lapply(comparison_data, function(x) {
-    if (is.character(x)) iconv(x, from = "latin1", to = "UTF-8", sub = "")
-    else x
-  })
-
-  # Store original comparison_data for debugging
-  fixed_data <<- comparison_data
+  
+  # Convert character columns to UTF-8 for consistent comparison
+  convert_to_utf8 <- function(df) {
+    df[] <- lapply(df, function(x) {
+      if (is.character(x)) enc2utf8(x)
+      else x
+    })
+    return(df)
+  }
+  new_data <- convert_to_utf8(new_data)
+  comparison_data <- convert_to_utf8(comparison_data)
 
   # Get numerical variable names
   numeric_var_list <- as.character(std_names_list$Name[which(std_names_list$Type == "numeric")])
