@@ -127,6 +127,23 @@ compare_dataframes <- function(new_data, comparison_data) {
       comparison_data_ordered <- comparison_data[order(comparison_data[[id_column]]), ]
 
     } else {
+      # IDs do not match
+      if (new_row_count != old_row_count) {
+        print_it("CAUTION - IDs do not fully match (the number of rows is different)", "br_violet")
+      } else {
+        print_it("CAUTION - IDs do not match", "br_violet")
+      }
+
+      # Check if value matching should proceed
+      if (max(new_row_count, old_row_count) > 10000) {
+        user_input <- readline(prompt = "Do you want to match on values? It could take a long time (y/n): ")
+        if (tolower(user_input) != "y") {
+          return(any_change_found)
+        }
+      }
+
+      print_it("Trying to match on values...", "yellow")
+
       # STRATEGY B: Fall back to sorting by columns with matching means
       common_columns <- intersect(colnames(new_data), colnames(comparison_data))
       matching_mean_columns <- c()
@@ -222,11 +239,7 @@ compare_dataframes <- function(new_data, comparison_data) {
             value_diff_indices <- which(both_not_na & abs(new_column_data - old_column_data) > 1e-6)
           } else if (!new_is_numeric && !old_is_numeric) {
             # Both non-numeric: exact comparison
-            for (i in which(both_not_na)) {
-              if (new_column_data[i] != old_column_data[i]) {
-                value_diff_indices <- c(value_diff_indices, i)
-              }
-            }
+            value_diff_indices <- which(both_not_na & new_column_data != old_column_data)
           }
 
           if (length(value_diff_indices) > 0) {
