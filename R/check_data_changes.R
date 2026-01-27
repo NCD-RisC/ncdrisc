@@ -41,16 +41,155 @@ read_extracted_df <- function(filename, target_dir = NULL) {
 
 #' Function to compare two dataframes for differences
 #'
-#' This function performs comprehensive comparison between new and existing extraction data.
-#' It compares row counts, column names, and performs detailed value-by-value comparison.
+#' This function compares the data being extracted and previously extracted data.
+#' It compares row counts, column names, matches rows, and performs detailed value-by-value comparison.
 #'
-#' @param new_data data frame of new extraction data
+#' @param new_data data frame of the data being extracted
 #' @param comparison_data data frame of previously extracted data
 compare_dataframes <- function(new_data, comparison_data) {
 
-  # flag for if any change was found
   any_change_found <- FALSE
-  
+  matching_options <- list(
+    id = c("id"),
+    `sample weight, age, sex, and height` = c("sex", "age", "psu", "samplewt_anthro", "height", "height1", "height2", "height3")
+  )
+
+  match_rows <- function(new_df, old_df, by_columns, type, new_total, old_total, fail_threshold) {
+
+    merged <- merge(new_df, old_df, by = by_columns)
+
+    if (nrow(merged) == 0) {
+      print_it(paste("No matching possible based on", type), "br_red")
+      return(NULL)
+    }
+
+    new_unmatched <- new_total - length(unique(merged$.new_idx))
+    old_unmatched <- old_total - length(unique(merged$.old_idx))
+
+    if (new_unmatched > 0) {
+      print_it(paste("CAUTION -", new_unmatched, "rows in new extraction data could not be matched in previously extracted data based on", type), "br_violet")
+    }
+    if (old_unmatched > 0) {
+      print_it(paste("CAUTION -", old_unmatched, "rows in previously extracted data could not be matched in new extraction data based on", type), "br_violet")
+    }
+
+    pct_new_lost <- new_unmatched / new_total
+    pct_old_lost <- old_unmatched / old_total
+
+    if (pct_new_lost >= fail_threshold && pct_old_lost >= fail_threshold) {
+      print_it(paste("No matching possible based on", type), "br_red")
+      return(NULL)
+    }
+
+    print_it(paste("Matched", nrow(merged), "rows based on", type), "yellow")
+
+    return(list(
+      new_idx = merged$.new_idx,
+      old_idx = merged$.old_idx,
+      matched_on = type,
+      match_columns = by_columns,
+      any_change_found = new_unmatched > 0 || old_unmatched > 0
+    ))
+  }
+
+  # --- Inner function: compare_values ---
+  # Performs value-by-value comparison on matched rows, excluding the columns used for matching.
+  compare_values <- function(new_data_matched, old_data_matched, matched_on, match_columns, numeric_var_list) {
+
+    values_changed <- FALSE
+
+    print_it(paste("Comparing values of columns other than", matched_on, "after matching based on", matched_on), "yellow")
+
+    common_columns <- setdiff(intersect(colnames(new_data_matched), colnames(old_data_matched)), match_columns)
+
+    for (column_name in common_columns) {
+      new_column_data <- new_data_matched[[column_name]]
+      old_column_data <- old_data_matched[[column_name]]
+
+      # Standardize data types for this column based on std_names_list
+      if (column_name %in% numeric_var_list) {
+        new_column_data <- as.numeric(new_column_data)
+        old_column_data <- as.numeric(old_column_data)
+      } else {
+        if (!is.character(new_column_data)) {
+          new_column_data <- as.character(new_column_data)
+        }
+        if (!is.character(old_column_data)) {
+          old_column_data <- as.character(old_column_data)
+        }
+      }
+
+      # Count changes from or to NA
+      na_to_nonNA_indices <- which(!is.na(new_column_data) & is.na(old_column_data))
+      if (length(na_to_nonNA_indices) > 0) {
+        values_changed <- TRUE
+        print_it(paste("CAUTION -", length(na_to_nonNA_indices), "NA values changed to non-NA in column", column_name), "br_violet")
+        new_values_from_na <- new_column_data[na_to_nonNA_indices]
+        unique_new_values <- unique(new_values_from_na)
+        for (value in unique_new_values[1:min(5, length(unique_new_values))]) {
+          value_count <- sum(new_values_from_na == value, na.rm = TRUE)
+          print_it(paste("NA ->", value, paste0("(", value_count), "cases)"), indent = 2)
+        }
+      }
+      nonNA_to_na_indices <- which(is.na(new_column_data) & !is.na(old_column_data))
+      if (length(nonNA_to_na_indices) > 0) {
+        values_changed <- TRUE
+        print_it(paste("CAUTION -", length(nonNA_to_na_indices), "non-NA values changed to NA in column", column_name), "br_violet")
+        old_values_to_na <- old_column_data[nonNA_to_na_indices]
+        unique_old_values <- unique(old_values_to_na)
+        for (value in unique_old_values[1:min(5, length(unique_old_values))]) {
+          value_count <- sum(old_values_to_na == value, na.rm = TRUE)
+          print_it(paste(value, "-> NA", paste0("(", value_count), "cases)"), indent = 2)
+        }
+      }
+
+      both_not_na <- !is.na(new_column_data) & !is.na(old_column_data)
+      if (sum(both_not_na) > 0) {
+
+        # Check type changes
+        new_is_numeric <- is.numeric(new_column_data)
+        old_is_numeric <- is.numeric(old_column_data)
+
+        if (new_is_numeric && !old_is_numeric) {
+          values_changed <- TRUE
+          stop(paste("ERROR - Column", column_name, "has incompatible data types: new extraction data is numeric but previously extracted data is not"))
+        } else if (!new_is_numeric && old_is_numeric) {
+          values_changed <- TRUE
+          stop(paste("ERROR - Column", column_name, "has incompatible data types: new extraction data is not numeric but previously extracted data is numeric"))
+        }
+
+        # Count value differences (excluding changes from or to NA)
+        value_diff_indices <- c()
+
+        if (new_is_numeric && old_is_numeric) {
+          # Both numeric: precision tolerance
+          value_diff_indices <- which(both_not_na & abs(new_column_data - old_column_data) > 1e-6)
+        } else if (!new_is_numeric && !old_is_numeric) {
+          # Both non-numeric: exact comparison
+          value_diff_indices <- which(both_not_na & new_column_data != old_column_data)
+        }
+
+        if (length(value_diff_indices) > 0) {
+          values_changed <- TRUE
+          print_it(paste("CAUTION -", length(value_diff_indices), "values changed in", column_name), "br_violet")
+
+          # Show unique cases and their counts
+          old_values <- old_column_data[value_diff_indices]
+          new_values <- new_column_data[value_diff_indices]
+          unique_changes <- unique(paste(old_values, "->", new_values))
+          for (change in unique_changes[1:min(5, length(unique_changes))]) {
+            change_count <- sum(paste(old_values, "->", new_values) == change)
+            print_it(paste(change, paste0("(", change_count), "cases)"), indent = 2)
+          }
+        }
+      }
+    }
+
+    return(values_changed)
+  }
+
+  # --- Main logic ---
+
   # Convert character columns to latin1 for consistent comparison
   convert_to_latin1 <- function(df) {
     for (col in names(df)) {
@@ -62,6 +201,9 @@ compare_dataframes <- function(new_data, comparison_data) {
   }
   new_data <- convert_to_latin1(new_data)
   comparison_data <- convert_to_latin1(comparison_data)
+
+  # Store original comparison_data for debugging
+  fixed_data <<- comparison_data
 
   # Get numerical variable names
   numeric_var_list <- as.character(std_names_list$Name[which(std_names_list$Type == "numeric")])
@@ -78,13 +220,13 @@ compare_dataframes <- function(new_data, comparison_data) {
   comparison_data <- comparison_data[, !colnames(comparison_data) %in% c("user", "ncdrisc_version"), drop = FALSE]
 
   # Compare row counts
-  new_row_count <- nrow(new_data)
-  old_row_count <- nrow(comparison_data)
+  new_total <- nrow(new_data)
+  old_total <- nrow(comparison_data)
 
-  if (new_row_count != old_row_count) {
+  if (new_total != old_total) {
     any_change_found <- TRUE
     print_it("CAUTION - inconsistent number of rows:", "br_violet")
-    print_it(paste("New:", new_row_count, "vs Old:", old_row_count), indent = 2)
+    print_it(paste("New:", new_total, "vs Old:", old_total), indent = 2)
   }
 
   # Identify columns that are new or have been removed
@@ -109,155 +251,59 @@ compare_dataframes <- function(new_data, comparison_data) {
     print_it(removed_columns, indent = 2)
   }
 
-  # Order datasets before value-by-value comparison
-  id_column <- "id"
+  # Match rows: try id first
+  new_id_df <- data.frame(id = new_data[["id"]], .new_idx = seq_len(new_total))
+  old_id_df <- data.frame(id = comparison_data[["id"]], .old_idx = seq_len(old_total))
 
-  if (id_column %in% colnames(new_data) && id_column %in% colnames(comparison_data)) {
-    # Both datasets have ID columns - check if IDs match
-    new_ids <- sort(new_data[[id_column]])
-    old_ids <- sort(comparison_data[[id_column]])
+  match_result <- match_rows(new_id_df, old_id_df, matching_options[["id"]], "id", new_total, old_total, fail_threshold = 0.1)
 
-    # Determine sorting strategy
-    new_data_ordered <- NULL
-    comparison_data_ordered <- NULL
+  # If id matching failed, try matching based on sample weight, age, sex, and height
+  if (is.null(match_result)) {
+    fallback_type <- names(matching_options)[2]
+    print_it(paste("Trying to match based on", fallback_type), "yellow")
 
-    if (identical(new_ids, old_ids)) {
-      # STRATEGY A: Sort by ID order
-      new_data_ordered <- new_data[order(new_data[[id_column]]), ]
-      comparison_data_ordered <- comparison_data[order(comparison_data[[id_column]]), ]
+    match_columns <- intersect(matching_options[[fallback_type]], intersect(colnames(new_data), colnames(comparison_data)))
 
-    } else {
-      # IDs do not match
-      if (new_row_count != old_row_count) {
-        print_it("CAUTION - IDs do not fully match (the number of rows is different)", "br_violet")
-      } else {
-        print_it("CAUTION - IDs do not match", "br_violet")
-      }
-
-      # Check if value matching should proceed
-      if (max(new_row_count, old_row_count) > 10000) {
-        user_input <- readline(prompt = "Do you want to match on values? It could take a long time (y/n): ")
-        if (tolower(user_input) != "y") {
-          return(any_change_found)
-        }
-      }
-
-      print_it("Trying to match on values...", "yellow")
-
-      # STRATEGY B: Fall back to sorting by columns with matching means
-      common_columns <- intersect(colnames(new_data), colnames(comparison_data))
-      matching_mean_columns <- c()
-
-      for (column_name in common_columns) {
-        if (is.numeric(new_data[[column_name]]) && is.numeric(comparison_data[[column_name]])) {
-          new_mean <- mean(new_data[[column_name]], na.rm = TRUE)
-          old_mean <- mean(comparison_data[[column_name]], na.rm = TRUE)
-          mean_diff <- abs(new_mean - old_mean)
-
-          if (mean_diff == 0) {
-            matching_mean_columns <- c(matching_mean_columns, column_name)
-          }
-        }
-      }
-
-      if (length(matching_mean_columns) > 0) {
-        new_data_ordered <- new_data[do.call(order, new_data[matching_mean_columns]), ]
-        comparison_data_ordered <- comparison_data[do.call(order, comparison_data[matching_mean_columns]), ]
-      }
+    if (length(match_columns) == 0) {
+      print_it(paste("No matching possible based on", fallback_type), "br_red")
+      return(any_change_found)
     }
 
-    # Perform value-by-value comparison
-    if (!is.null(new_data_ordered) && !is.null(comparison_data_ordered)) {
-      # Get columns that exist in both datasets for comparison
-      common_columns <- intersect(colnames(new_data_ordered), colnames(comparison_data_ordered))
-      min_length <- min(nrow(new_data_ordered), nrow(comparison_data_ordered))
-
-      # Compare each common column value-by-value
-      for (column_name in common_columns) {
-        new_column_data <- new_data_ordered[[column_name]][1:min_length]
-        old_column_data <- comparison_data_ordered[[column_name]][1:min_length]
-
-        # Standardize data types for this column based on std_names_list
-        if (column_name %in% numeric_var_list) {
-          new_column_data <- as.numeric(new_column_data)
-          old_column_data <- as.numeric(old_column_data)
+    round_column <- function(df, col) {
+      if (is.numeric(df[[col]])) {
+        if (col %in% c("height", "height1", "height2", "height3")) {
+          return(round(df[[col]], 0))
         } else {
-          if (!is.character(new_column_data)) {
-            new_column_data <- as.character(new_column_data)
-          }
-          if (!is.character(old_column_data)) {
-            old_column_data <- as.character(old_column_data)
-          }
-        }
-
-        # Count changes from or to NA
-        na_to_nonNA_indices <- which(!is.na(new_column_data) & is.na(old_column_data))
-        if (length(na_to_nonNA_indices) > 0) {
-          any_change_found <- TRUE
-          print_it(paste("CAUTION -", length(na_to_nonNA_indices), "NA values changed to non-NA in column", column_name), "br_violet")
-          # Show unique new values and their counts
-          new_values_from_na <- new_column_data[na_to_nonNA_indices]
-          unique_new_values <- unique(new_values_from_na)
-          for (value in unique_new_values[1:min(5, length(unique_new_values))]) {
-            value_count <- sum(new_values_from_na == value, na.rm = TRUE)
-            print_it(paste("NA ->", value, paste0("(", value_count), "cases)"), indent = 2)
-          }
-        }
-        nonNA_to_na_indices <- which(is.na(new_column_data) & !is.na(old_column_data))
-        if (length(nonNA_to_na_indices) > 0) {
-          any_change_found <- TRUE
-          print_it(paste("CAUTION -", length(nonNA_to_na_indices), "non-NA values changed to NA in column", column_name), "br_violet")
-          # Show unique old values and their counts
-          old_values_to_na <- old_column_data[nonNA_to_na_indices]
-          unique_old_values <- unique(old_values_to_na)
-          for (value in unique_old_values[1:min(5, length(unique_old_values))]) {
-            value_count <- sum(old_values_to_na == value, na.rm = TRUE)
-            print_it(paste(value, "-> NA", paste0("(", value_count), "cases)"), indent = 2)
-          }
-        }
-
-        both_not_na <- !is.na(new_column_data) & !is.na(old_column_data)
-        if (sum(both_not_na) > 0) {
-
-          # Check type changes
-          new_is_numeric <- is.numeric(new_column_data)
-          old_is_numeric <- is.numeric(old_column_data)
-
-          if (new_is_numeric && !old_is_numeric) {
-            any_change_found <- TRUE
-            stop(paste("ERROR - Column", column_name, "has incompatible data types: new data is numeric but old data is not"))
-          } else if (!new_is_numeric && old_is_numeric) {
-            any_change_found <- TRUE
-            stop(paste("ERROR - Column", column_name, "has incompatible data types: new data is not numeric but old data is numeric"))
-          }
-
-          # Count value differences (excluding changes from or to NA)
-          value_diff_indices <- c()
-
-          if (new_is_numeric && old_is_numeric) {
-            # Both numeric: precision tolerance
-            value_diff_indices <- which(both_not_na & abs(new_column_data - old_column_data) > 1e-6)
-          } else if (!new_is_numeric && !old_is_numeric) {
-            # Both non-numeric: exact comparison
-            value_diff_indices <- which(both_not_na & new_column_data != old_column_data)
-          }
-
-          if (length(value_diff_indices) > 0) {
-            any_change_found <- TRUE
-            print_it(paste("CAUTION -", length(value_diff_indices), "values changed in", column_name), "br_violet")
-
-            # Show unique cases and their counts
-            old_values <- old_column_data[value_diff_indices]
-            new_values <- new_column_data[value_diff_indices]
-            unique_changes <- unique(paste(old_values, "->", new_values))
-            for (change in unique_changes[1:min(5, length(unique_changes))]) {
-              change_count <- sum(paste(old_values, "->", new_values) == change)
-              print_it(paste(change, paste0("(", change_count), "cases)"), indent = 2)
-            }
-          }
+          return(round(df[[col]]))
         }
       }
+      return(df[[col]])
     }
+
+    new_match_df <- data.frame(lapply(match_columns, function(k) round_column(new_data, k)))
+    old_match_df <- data.frame(lapply(match_columns, function(k) round_column(comparison_data, k)))
+    colnames(new_match_df) <- match_columns
+    colnames(old_match_df) <- match_columns
+    new_match_df$.new_idx <- seq_len(new_total)
+    old_match_df$.old_idx <- seq_len(old_total)
+
+    match_result <- match_rows(new_match_df, old_match_df, match_columns, fallback_type, new_total, old_total, fail_threshold = 0.1)
+
+    if (is.null(match_result)) {
+      return(any_change_found)
+    }
+  }
+
+  if (match_result$any_change_found) {
+    any_change_found <- TRUE
+  }
+
+  # Subset to matched rows and compare values
+  new_data_matched <- new_data[match_result$new_idx, ]
+  old_data_matched <- comparison_data[match_result$old_idx, ]
+
+  if (compare_values(new_data_matched, old_data_matched, match_result$matched_on, match_result$match_columns, numeric_var_list)) {
+    any_change_found <- TRUE
   }
 
   return(any_change_found)
