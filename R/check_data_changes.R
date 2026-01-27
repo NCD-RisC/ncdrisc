@@ -42,6 +42,16 @@ compare_dataframes <- function(new_data, comparison_data) {
   # flag for if any change was found
   any_change_found <- FALSE
 
+  # Convert both datasets to latin1
+  new_data[] <- lapply(new_data, function(x) {
+    if (is.character(x)) iconv(x, from = "latin1", to = "UTF-8", sub = "")
+    else x
+  })
+  comparison_data[] <- lapply(comparison_data, function(x) {
+    if (is.character(x)) iconv(x, from = "latin1", to = "UTF-8", sub = "")
+    else x
+  })
+
   # Store original comparison_data for debugging
   fixed_data <<- comparison_data
 
