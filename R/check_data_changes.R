@@ -20,7 +20,16 @@ read_extracted_df <- function(filename, target_dir = NULL) {
   # Check if CSV file exists
   if (file.exists(csv_path)) {
     tryCatch({
-      return(read.csv(csv_path))
+      df_latin1 <- read.csv(csv_path, fileEncoding = "latin1")
+      df_utf8 <- read.csv(csv_path)
+
+      if (nrow(df_latin1) != nrow(df_utf8)) {
+        print_it("(read as UTF-8)", "yellow")
+        return(df_utf8)
+      } else {
+        print_it("(read as latin1)", "yellow")
+        return(df_latin1)
+      }
     }, error = function(e) {
       return(NULL)
     })
