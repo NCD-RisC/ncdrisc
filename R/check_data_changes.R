@@ -86,8 +86,8 @@ compare_dataframes <- function(new_data, old_data) {
   }
 
   # Ask user how to match rows
-  choice <- menu(c("id (use if id column has not changed)",
-                   "auto (use if id column has changed)"),
+  choice <- menu(c("id (use if there is a common id column in the data being extracted and in the previous extraction)",
+                   "auto (use if there is no common id column; may be slow with >100,000 rows)"),
                  title = "How to match rows:")
   
   common_columns <- intersect(colnames(old_data), colnames(new_data))
@@ -103,32 +103,32 @@ compare_dataframes <- function(new_data, old_data) {
 
   } else {
     # Find columns that uniquely identify rows in old_data
-    # Only use numeric columns and exclude "id"
+    # Exclude "id" and metadata columns
     print_it("Finding columns for matching...", "yellow")
 
-    available_columns <- common_columns[common_columns %in% numeric_var_list & common_columns != "id"]
+    available_columns <- common_columns[common_columns != "id"]
+    available_columns <- available_columns[!grepl("^age_min_|^age_max_|^is_|_year$", available_columns)]
+    available_columns <- available_columns[available_columns %in% numeric_var_list]
     print_it(paste("Numeric columns available:", paste(available_columns, collapse = ", ")), "yellow")
 
     columns_for_matching <- c()
     done <- FALSE
-    step <- 4
 
-    for (i in seq(1, length(available_columns), by = step)) {
-      batch <- available_columns[i:min(i + step - 1, length(available_columns))]
-      columns_for_matching <- c(columns_for_matching, batch)
-      print_it(paste("Adding:", paste(batch, collapse = ", ")), "yellow")
+    for (column in available_columns) {
+      columns_for_matching <- c(columns_for_matching, column)
       current_subset <- old_data[, columns_for_matching, drop = FALSE]
 
       if (anyDuplicated(current_subset) == 0) {
         done <- TRUE
-        print_it(paste("Using columns:", paste(columns_for_matching, collapse = ", ")), "yellow")
         break
       }
     }
 
     if (!done) {
-      print_it("Could not automatically match rows", "br_red")
-      print_it("Saving last subset to 'debug_matching_subset' for inspection", "yellow")
+      print_it("Could not automatically match rows - rows are not unique", "br_red")
+      print_it("This can be expected with large datasets (>100,000 rows)", indent = 2)
+      print_it("If that is not the case, please check if having duplicate rows in the data being extracted is expected", indent = 2)
+      print_it("If there is no common id column and automatic matching fails, consistency with previous extraction should be carefully checked manually", indent = 2)
       debug_matching_subset <<- current_subset
       return(any_change)
     }
