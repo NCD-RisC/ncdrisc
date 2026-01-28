@@ -102,9 +102,8 @@ compare_dataframes <- function(new_data, old_data) {
     print_it("Matching by id", "yellow")
 
   } else {
-    # Find columns that uniquely identify rows in old_data
+    # Find columns that uniquely identify rows
     # Exclude "id" and metadata columns
-    print_it("Finding columns for matching...", "yellow")
 
     available_columns <- common_columns[common_columns != "id"]
     available_columns <- available_columns[!grepl("^age_min_|^age_max_|^is_|_year$", available_columns)]
