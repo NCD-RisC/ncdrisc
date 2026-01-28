@@ -112,14 +112,17 @@ compare_dataframes <- function(new_data, old_data) {
 
   } else {
     # Find columns that uniquely identify rows in old_data
+    print_it("Finding columns for matching...", "yellow")
     columns_for_matching <- c()
     done <- FALSE
 
     for (column in common_columns) {
       columns_for_matching <- c(columns_for_matching, column)
 
-      if (nrow(unique(old_data[, columns_for_matching, drop = FALSE])) == old_total) {
+      # Use duplicated() instead of unique() for speed
+      if (!any(duplicated(old_data[, columns_for_matching, drop = FALSE]))) {
         done <- TRUE
+        print_it(paste("Using columns:", paste(columns_for_matching, collapse = ", ")), "yellow")
         break
       }
     }
@@ -131,6 +134,7 @@ compare_dataframes <- function(new_data, old_data) {
   }
 
   # Build data for joining
+  print_it("Building matching data...", "yellow")
   old_for_matching <- old_data[, columns_for_matching, drop = FALSE]
   old_for_matching$old_row_index <- seq_len(old_total)
 
@@ -138,17 +142,17 @@ compare_dataframes <- function(new_data, old_data) {
   new_for_matching$new_row_index <- seq_len(new_total)
 
   # Join based on matching columns
+  print_it("Joining data...", "yellow")
   matched_data <- merge(old_for_matching, new_for_matching, by = columns_for_matching)
   
   unmatched_rows <- old_total - length(unique(matched_data$old_row_index))
 
-  print_it(paste("Matched", nrow(matched_data), "rows"), "yellow")
-  
   if (unmatched_rows > 0) {
     any_change <- TRUE
-    print_it(paste("CAUTION - Could not match", unmatched_rows, "rows in previously extracted data to the data being extracted"), "br_violet")
-    return(any_change)
+    print_it(paste("CAUTION - Could not match", unmatched_rows, "rows from previously extracted data"), "br_violet")
   }
+
+  print_it(paste("Matched", nrow(matched_data), "rows"), "yellow")
 
   # Compare columns
   new_data_matched <- new_data[matched_data$new_row_index, ]
