@@ -172,44 +172,51 @@ compare_dataframes <- function(new_data, old_data) {
       if (!is.character(old_values)) old_values <- as.character(old_values)
     }
 
-    # NA to value
-    changed_indices <- which(!is.na(new_values) & is.na(old_values))
-    if (length(changed_indices) > 0) {
+    # Count changes from or to NA
+    na_to_nonNA_indices <- which(!is.na(new_values) & is.na(old_values))
+    if (length(na_to_nonNA_indices) > 0) {
       any_change <- TRUE
-      print_it(paste("CAUTION -", length(changed_indices), "NA changed to value in", column), "br_violet")
-      values <- new_values[changed_indices]
-      for (v in unique(values)[1:min(5, length(unique(values)))]) {
-        print_it(paste("NA ->", v, paste0("(", sum(values == v, na.rm = TRUE), ")")), indent = 2)
+      print_it(paste("CAUTION -", length(na_to_nonNA_indices), "NA values changed to non-NA in column", column), "br_violet")
+      new_values_from_na <- new_values[na_to_nonNA_indices]
+      unique_new_values <- unique(new_values_from_na)
+      for (value in unique_new_values[1:min(5, length(unique_new_values))]) {
+        value_count <- sum(new_values_from_na == value, na.rm = TRUE)
+        print_it(paste("NA ->", value, paste0("(", value_count), "cases)"), indent = 2)
+      }
+    }
+    nonNA_to_na_indices <- which(is.na(new_values) & !is.na(old_values))
+    if (length(nonNA_to_na_indices) > 0) {
+      any_change <- TRUE
+      print_it(paste("CAUTION -", length(nonNA_to_na_indices), "non-NA values changed to NA in column", column), "br_violet")
+      old_values_to_na <- old_values[nonNA_to_na_indices]
+      unique_old_values <- unique(old_values_to_na)
+      for (value in unique_old_values[1:min(5, length(unique_old_values))]) {
+        value_count <- sum(old_values_to_na == value, na.rm = TRUE)
+        print_it(paste(value, "-> NA", paste0("(", value_count), "cases)"), indent = 2)
       }
     }
 
-    # Value to NA
-    changed_indices <- which(is.na(new_values) & !is.na(old_values))
-    if (length(changed_indices) > 0) {
-      any_change <- TRUE
-      print_it(paste("CAUTION -", length(changed_indices), "values changed to NA in", column), "br_violet")
-      values <- old_values[changed_indices]
-      for (v in unique(values)[1:min(5, length(unique(values)))]) {
-        print_it(paste(v, "-> NA", paste0("(", sum(values == v, na.rm = TRUE), ")")), indent = 2)
-      }
-    }
+    both_not_na <- !is.na(new_values) & !is.na(old_values)
+    if (sum(both_not_na) == 0) next
 
-    # Value changes
-    both_have_values <- !is.na(new_values) & !is.na(old_values)
-    if (sum(both_have_values) == 0) next
-
+    value_diff_indices <- c()
     if (is.numeric(new_values)) {
-      changed_indices <- which(both_have_values & abs(new_values - old_values) > 1e-6)
+      value_diff_indices <- which(both_not_na & abs(new_values - old_values) > 1e-6)
     } else {
-      changed_indices <- which(both_have_values & new_values != old_values)
+      for (i in which(both_not_na)) {
+        if (new_values[i] != old_values[i]) {
+          value_diff_indices <- c(value_diff_indices, i)
+        }
+      }
     }
 
-    if (length(changed_indices) > 0) {
+    if (length(value_diff_indices) > 0) {
       any_change <- TRUE
-      print_it(paste("CAUTION -", length(changed_indices), "values changed in", column), "br_violet")
-      changes <- paste(old_values[changed_indices], "->", new_values[changed_indices])
-      for (change in unique(changes)[1:min(5, length(unique(changes)))]) {
-        print_it(paste(change, paste0("(", sum(changes == change), ")")), indent = 2)
+      print_it(paste("CAUTION -", length(value_diff_indices), "values changed in", column), "br_violet")
+      unique_changes <- unique(paste(old_values[value_diff_indices], "->", new_values[value_diff_indices]))
+      for (change in unique_changes[1:min(5, length(unique_changes))]) {
+        change_count <- sum(paste(old_values[value_diff_indices], "->", new_values[value_diff_indices]) == change)
+        print_it(paste(change, paste0("(", change_count), "cases)"), indent = 2)
       }
     }
   }
