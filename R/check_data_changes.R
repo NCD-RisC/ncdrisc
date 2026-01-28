@@ -107,13 +107,16 @@ compare_dataframes <- function(new_data, old_data) {
     print_it("Finding columns for matching...", "yellow")
 
     available_columns <- common_columns[common_columns %in% numeric_var_list & common_columns != "id"]
-    print_it(paste("Numeric columns available:", length(available_columns)), "yellow")
+    print_it(paste("Numeric columns available:", paste(available_columns, collapse = ", ")), "yellow")
 
     columns_for_matching <- c()
     done <- FALSE
+    step <- 4
 
-    for (column in available_columns) {
-      columns_for_matching <- c(columns_for_matching, column)
+    for (i in seq(1, length(available_columns), by = step)) {
+      batch <- available_columns[i:min(i + step - 1, length(available_columns))]
+      columns_for_matching <- c(columns_for_matching, batch)
+      print_it(paste("Adding:", paste(batch, collapse = ", ")), "yellow")
       current_subset <- old_data[, columns_for_matching, drop = FALSE]
 
       if (anyDuplicated(current_subset) == 0) {
