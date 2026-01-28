@@ -112,14 +112,20 @@ compare_dataframes <- function(new_data, old_data) {
 
   } else {
     # Find columns that uniquely identify rows in old_data
+    # Only use numeric columns and exclude "id"
     print_it("Finding columns for matching...", "yellow")
+
+    available_columns <- common_columns[common_columns %in% numeric_var_list & common_columns != "id"]
+    print_it(paste("Numeric columns available:", length(numeric_columns)), "yellow")
+
     columns_for_matching <- c()
     done <- FALSE
 
-    for (column in common_columns) {
+    for (column in available_columns) {
       columns_for_matching <- c(columns_for_matching, column)
+      current_subset <- old_data[, columns_for_matching, drop = FALSE]
 
-      if (anyDuplicated(old_data[, columns_for_matching, drop = FALSE]) == 0) {
+      if (anyDuplicated(current_subset) == 0) {
         done <- TRUE
         print_it(paste("Using columns:", paste(columns_for_matching, collapse = ", ")), "yellow")
         break
@@ -128,6 +134,8 @@ compare_dataframes <- function(new_data, old_data) {
 
     if (!done) {
       print_it("Could not automatically match rows", "br_red")
+      print_it("Saving last subset to 'debug_matching_subset' for inspection", "yellow")
+      debug_matching_subset <<- current_subset
       return(any_change)
     }
   }
