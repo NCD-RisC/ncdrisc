@@ -69,16 +69,7 @@ compare_dataframes <- function(new_data, old_data) {
   # Remove user and ncdrisc_version columns from old data
   # These are written when calling save_extraction()
   old_data <- old_data[, !colnames(old_data) %in% c("user", "ncdrisc_version"), drop = FALSE]
-
-  # Compare the number of rows
-  new_total <- nrow(new_data)
-  old_total <- nrow(old_data)
-  if (new_total != old_total) {
-    any_change <- TRUE
-    print_it("CAUTION - inconsistent number of rows:", "br_violet")
-    print_it(paste("Data being extracted:", new_total, "vs Previously extracted data:", old_total), indent = 2)
-  }
-
+  
   # Compare column names
   new_cols <- setdiff(colnames(new_data), colnames(old_data))
   removed_cols <- setdiff(colnames(old_data), colnames(new_data))
@@ -140,33 +131,24 @@ compare_dataframes <- function(new_data, old_data) {
     }
   }
 
-  # Build data for joining
-  print_it("Building matching data...", "yellow")
-  old_for_matching <- old_data[, columns_for_matching, drop = FALSE]
-  old_for_matching$old_row_index <- seq_len(old_total)
-
   new_for_matching <- new_data[, columns_for_matching, drop = FALSE]
   new_for_matching$new_row_index <- seq_len(new_total)
 
-  # Join based on matching columns
-  print_it("Joining data...", "yellow")
-  matched_data <- merge(old_for_matching, new_for_matching, by = columns_for_matching)
-  
-  unmatched_rows <- old_total - length(unique(matched_data$old_row_index))
+  old_for_matching <- old_data[, columns_for_matching, drop = FALSE]
+  old_for_matching$old_row_index <- seq_len(old_total)
 
-  if (unmatched_rows > 0) {
-    any_change <- TRUE
-    print_it(paste("CAUTION - Could not match", unmatched_rows, "rows from previously extracted data"), "br_violet")
-  }
+  matched_data <- merge(new_for_matching, old_for_matching, by = columns_for_matching, all.x = TRUE)
 
-  print_it(paste("Matched", nrow(matched_data), "rows"), "yellow")
+  new_rows <- sum(is.na(matched_data$old_row_index))
+  if (new_rows > 0) print_it(paste(new_rows, "new rows"), "yellow")
 
-  # Compare columns
+  matched_data <- matched_data[!is.na(matched_data$old_row_index), ]
+  columns_to_compare <- intersect(colnames(new_data), colnames(old_data))
+
+  print_it(paste("Comparing", nrow(matched_data), "rows across", length(columns_to_compare), "columns"), "yellow")
+
   new_data_matched <- new_data[matched_data$new_row_index, ]
   old_data_matched <- old_data[matched_data$old_row_index, ]
-  columns_to_compare <- intersect(colnames(new_data_matched), colnames(old_data_matched))
-
-  print_it(paste("Comparing", length(columns_to_compare), "columns"), "yellow")
 
   for (column in columns_to_compare) {
     new_values <- new_data_matched[[column]]
