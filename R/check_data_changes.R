@@ -119,8 +119,7 @@ compare_dataframes <- function(new_data, old_data) {
     for (column in common_columns) {
       columns_for_matching <- c(columns_for_matching, column)
 
-      # Use duplicated() instead of unique() for speed
-      if (!any(duplicated(old_data[, columns_for_matching, drop = FALSE]))) {
+      if (anyDuplicated(old_data[, columns_for_matching, drop = FALSE]) == 0) {
         done <- TRUE
         print_it(paste("Using columns:", paste(columns_for_matching, collapse = ", ")), "yellow")
         break
