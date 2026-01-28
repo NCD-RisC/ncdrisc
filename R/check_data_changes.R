@@ -116,7 +116,7 @@ compare_dataframes <- function(new_data, old_data) {
     print_it("Finding columns for matching...", "yellow")
 
     available_columns <- common_columns[common_columns %in% numeric_var_list & common_columns != "id"]
-    print_it(paste("Numeric columns available:", length(numeric_columns)), "yellow")
+    print_it(paste("Numeric columns available:", length(available_columns)), "yellow")
 
     columns_for_matching <- c()
     done <- FALSE
