@@ -130,17 +130,25 @@ compare_dataframes <- function(new_data, old_data) {
       return(any_change)
     }
   }
-
+  
   new_for_matching <- new_data[, columns_for_matching, drop = FALSE]
-  new_for_matching$new_row_index <- seq_len(new_total)
+  new_for_matching$new_row_index <- seq_len(nrow(new_data))
 
   old_for_matching <- old_data[, columns_for_matching, drop = FALSE]
-  old_for_matching$old_row_index <- seq_len(old_total)
+  old_for_matching$old_row_index <- seq_len(nrow(old_data))
 
   matched_data <- merge(new_for_matching, old_for_matching, by = columns_for_matching, all.x = TRUE)
 
   new_rows <- sum(is.na(matched_data$old_row_index))
-  if (new_rows > 0) print_it(paste(new_rows, "new rows"), "yellow")
+  removed_rows <- nrow(old_data) - length(unique(na.omit(matched_data$old_row_index)))
+  if (new_rows > 0) {
+    any_change <- TRUE
+    print_it(paste("CAUTION -", new_rows, "added rows"), "br_violet")
+  }
+  if (removed_rows > 0) {
+    any_change <- TRUE
+    print_it(paste("CAUTION -", removed_rows, "removed rows"), "br_violet")
+  }
 
   matched_data <- matched_data[!is.na(matched_data$old_row_index), ]
   columns_to_compare <- intersect(colnames(new_data), colnames(old_data))
