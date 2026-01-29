@@ -30,15 +30,15 @@ check_extraction <- function(dataset, new_extraction = TRUE,
   ## Read data
   # standard country names
   # countrylist <- read.csv("S:/Projects/HeightProject/Original dataset/Covariates/country-list-2023-new.csv")
-  countrylist <- ncdrisc::countrylist
+  countrylist <- suppressWarnings(ncdrisc::countrylist)
 
   # standard variable name list - the list should be updated separately
   # std_names_list <- read.csv("S:/Projects/HeightProject/Original dataset/Data/Surveys/__Extraction Template/standard_variable_names.csv")
-  std_names_list <- ncdrisc::std_names_list
+  std_names_list <- suppressWarnings(ncdrisc::std_names_list)
 
   # List of high-altitutde countries that Hb needs adjusting
   # high_altitude_countries <- read.csv("S:/Projects/HeightProject/Original dataset/Anaemia/altitude info/high_altitude_countries.csv")
-  high_altitude_countries <- ncdrisc::high_altitude_countries
+  high_altitude_countries <- suppressWarnings(ncdrisc::high_altitude_countries)
 
   # Legacy naming issue
   # we use ha1c in extraction but hba1c downstream - rename hba1c variables to ha1c for these checks

@@ -53,10 +53,10 @@ compare_dataframes <- function(new_data, comparison_data) {
 
   # Convert character columns to latin1
   for (col in names(new_data)) {
-    if (is.character(new_data[[col]])) new_data[[col]] <- suppressWarnings(iconv(new_data[[col]], from = "UTF-8", to = "latin1", sub = ""))
+    if (is.character(new_data[[col]])) new_data[[col]] <- iconv(new_data[[col]], from = "UTF-8", to = "latin1", sub = "")
   }
   for (col in names(comparison_data)) {
-    if (is.character(comparison_data[[col]])) comparison_data[[col]] <- suppressWarnings(iconv(comparison_data[[col]], from = "UTF-8", to = "latin1", sub = ""))
+    if (is.character(comparison_data[[col]])) comparison_data[[col]] <- iconv(comparison_data[[col]], from = "UTF-8", to = "latin1", sub = "")
   }
   # Remove fully empty columns from both datasets
   new_data_non_empty_cols <- sapply(new_data, function(col) !all(is.na(col)))
