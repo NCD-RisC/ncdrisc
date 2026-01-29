@@ -227,11 +227,7 @@ compare_dataframes <- function(new_data, old_data) {
         value_diff_indices <- which(both_not_na & abs(new_column_data - old_column_data) > 1e-6)
       } else if (!new_is_numeric && !old_is_numeric) {
         # Both non-numeric: exact comparison
-        for (i in which(both_not_na)) {
-          if (new_column_data[i] != old_column_data[i]) {
-            value_diff_indices <- c(value_diff_indices, i)
-          }
-        }
+        value_diff_indices <- which(both_not_na & new_column_data != old_column_data)
       }
 
       if (length(value_diff_indices) > 0) {
