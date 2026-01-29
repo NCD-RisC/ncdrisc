@@ -371,6 +371,12 @@ check_extraction <- function(dataset, new_extraction = TRUE,
   }
 
   if (is.null(study_dir)) study_dir <- paste0(getwd(), "/")
-  check_data_changes(dataset, filename, study_dir, extracted_data_dir)
+  # suppress warnings related to differences in encoding
+  withCallingHandlers(
+    check_data_changes(dataset, filename, study_dir, extracted_data_dir),
+    warning = function(w) {
+      if (grepl("UTF-8", conditionMessage(w))) invokeRestart("muffleWarning")
+    }
+  )
 
 }

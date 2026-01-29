@@ -105,9 +105,6 @@ compare_dataframes <- function(new_data, comparison_data) {
       return(any_change_found)
     }
     columns_for_matching <- "id"
-    print_it(paste("Matching by id | new id class:", class(new_data$id), "| old id class:", class(comparison_data$id)), "yellow")
-    print_it(paste("new ids sample:", paste(head(new_data$id, 3), collapse=", ")), "yellow")
-    print_it(paste("old ids sample:", paste(head(comparison_data$id, 3), collapse=", ")), "yellow")
 
   } else {
     # Find columns that uniquely identify rows
@@ -116,7 +113,6 @@ compare_dataframes <- function(new_data, comparison_data) {
     available_columns <- common_columns[common_columns != "id"]
     available_columns <- available_columns[!grepl("^age_min_|^age_max_|^is_|_year$", available_columns)]
     available_columns <- available_columns[available_columns %in% numeric_var_list]
-    print_it(paste("Numeric columns available:", paste(available_columns, collapse = ", ")), "yellow")
 
     columns_for_matching <- c()
     done <- FALSE
