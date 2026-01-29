@@ -159,19 +159,19 @@ compare_dataframes <- function(new_data, comparison_data) {
     print_it(paste("CAUTION -", removed_rows, "removed rows"), "br_violet")
   }
 
-  new_data_matched <- new_data[new_in_old, ]
-  comparison_data_matched <- comparison_data[old_in_new, ]
+  new_data_ordered <- new_data[new_in_old, ]
+  comparison_data_ordered <- comparison_data[old_in_new, ]
 
   # Sort both by matching columns
-  new_data_matched <- new_data_matched[do.call(order, new_data_matched[, columns_for_matching, drop = FALSE]), ]
-  comparison_data_matched <- comparison_data_matched[do.call(order, comparison_data_matched[, columns_for_matching, drop = FALSE]), ]
+  new_data_ordered <- new_data_ordered[do.call(order, new_data_ordered[, columns_for_matching, drop = FALSE]), ]
+  comparison_data_ordered <- comparison_data_ordered[do.call(order, comparison_data_ordered[, columns_for_matching, drop = FALSE]), ]
 
-  print_it(paste("Comparing", nrow(new_data_matched), "rows across", length(common_columns), "columns"), "yellow")
+  print_it(paste("Comparing", nrow(new_data_ordered), "rows across", length(common_columns), "columns"), "yellow")
 
       # Compare each common column value-by-value
       for (column_name in common_columns) {
-        new_column_data <- new_data_matched[[column_name]]
-        old_column_data <- comparison_data_matched[[column_name]]
+        new_column_data <- new_data_ordered[[column_name]]
+        old_column_data <- comparison_data_ordered[[column_name]]
 
         # Standardize data types for this column based on std_names_list
         if (column_name %in% numeric_var_list) {
