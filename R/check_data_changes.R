@@ -97,7 +97,9 @@ compare_dataframes <- function(new_data, old_data) {
       return(any_change)
     }
     columns_for_matching <- "id"
-    print_it("Matching by id", "yellow")
+    print_it(paste("Matching by id | new id class:", class(new_data$id), "| old id class:", class(old_data$id)), "yellow")
+    print_it(paste("new ids sample:", paste(head(new_data$id, 3), collapse=", ")), "yellow")
+    print_it(paste("old ids sample:", paste(head(old_data$id, 3), collapse=", ")), "yellow")
 
   } else {
     # Find columns that uniquely identify rows
@@ -138,6 +140,7 @@ compare_dataframes <- function(new_data, old_data) {
   old_for_matching$old_row_index <- seq_len(nrow(old_data))
 
   matched_data <- merge(new_for_matching, old_for_matching, by = columns_for_matching, all.x = TRUE)
+  print_it(paste("Merge result:", nrow(matched_data), "rows |", sum(!is.na(matched_data$old_row_index)), "matched |", sum(is.na(matched_data$old_row_index)), "unmatched"), "yellow")
 
   new_rows <- sum(is.na(matched_data$old_row_index))
   removed_rows <- nrow(old_data) - length(unique(na.omit(matched_data$old_row_index)))
