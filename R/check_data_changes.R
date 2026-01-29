@@ -20,8 +20,8 @@ read_extracted_df <- function(filename, target_dir = NULL) {
   # Check if CSV file exists
   if (file.exists(csv_path)) {
     tryCatch({
-      df_latin1 <- read.csv(csv_path, fileEncoding = "latin1")
-      df_utf8 <- read.csv(csv_path, fileEncoding = "UTF-8")
+      df_latin1 <- suppressWarnings(read.csv(csv_path, fileEncoding = "latin1"))
+      df_utf8 <- suppressWarnings(read.csv(csv_path, fileEncoding = "UTF-8"))
       
       if (nrow(df_utf8) > nrow(df_latin1)) {
         return(df_utf8)
@@ -95,7 +95,7 @@ compare_dataframes <- function(new_data, comparison_data) {
 
   # Ask user how to match rows
   choice <- menu(c("id (use if there is a common id column in the data being extracted and in the previous extraction)",
-                   "auto (use if there is no common id column; may be slow with >100,000 rows)"),
+                   "auto (use if there is no common id column; may be slow with >10,000 rows)"),
                  title = "How to match rows:")
 
   if (choice == 1) {
@@ -129,7 +129,7 @@ compare_dataframes <- function(new_data, comparison_data) {
 
     if (!done) {
       print_it("Could not automatically match rows - rows are not unique", "br_red")
-      print_it("This can be expected with large datasets (>100,000 rows)", indent = 2)
+      print_it("This can be expected with large datasets (>10,000 rows)", indent = 2)
       print_it("If that is not the case, please check if having duplicate rows in the data being extracted is expected", indent = 2)
       print_it("If there is no common id column and automatic matching fails, consistency with previous extraction should be carefully checked manually", indent = 2)
       debug_matching_subset <<- current_subset
