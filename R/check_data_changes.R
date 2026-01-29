@@ -23,6 +23,8 @@ read_extracted_df <- function(filename, target_dir = NULL) {
       df_latin1 <- read.csv(csv_path, fileEncoding = "latin1")
       df_utf8 <- read.csv(csv_path, fileEncoding = "UTF-8")
 
+      print_it(paste("latin1:", nrow(df_latin1), "rows", ncol(df_latin1), "cols | UTF-8:", nrow(df_utf8), "rows", ncol(df_utf8), "cols"), "yellow")
+
       if (nrow(df_latin1) != nrow(df_utf8)) {
         print_it("(read as UTF-8)", "yellow")
         return(df_utf8)
