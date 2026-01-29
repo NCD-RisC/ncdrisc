@@ -58,8 +58,6 @@ compare_dataframes <- function(new_data, old_data) {
   for (col in names(old_data)) {
     if (is.character(old_data[[col]])) old_data[[col]] <- iconv(old_data[[col]], from = "UTF-8", to = "latin1", sub = "")
   }
-  numeric_var_list <- as.character(std_names_list$Name[which(std_names_list$Type == "numeric")])
-
   # Remove fully empty columns
   new_data <- new_data[, sapply(new_data, function(x) !all(is.na(x))), drop = FALSE]
   old_data <- old_data[, sapply(old_data, function(x) !all(is.na(x))), drop = FALSE]
@@ -67,7 +65,11 @@ compare_dataframes <- function(new_data, old_data) {
   # Remove user and ncdrisc_version columns from old data
   # These are written when calling save_extraction()
   old_data <- old_data[, !colnames(old_data) %in% c("user", "ncdrisc_version"), drop = FALSE]
-  
+
+  std_names_list <- ncdrisc::std_names_list
+  common_columns <- intersect(colnames(new_data), colnames(old_data))
+  numeric_columns <- as.character(std_names_list$Name[which(std_names_list$Type == "numeric")])
+
   # Compare column names
   new_cols <- setdiff(colnames(new_data), colnames(old_data))
   removed_cols <- setdiff(colnames(old_data), colnames(new_data))
@@ -87,8 +89,6 @@ compare_dataframes <- function(new_data, old_data) {
   choice <- menu(c("id (use if there is a common id column in the data being extracted and in the previous extraction)",
                    "auto (use if there is no common id column; may be slow with >100,000 rows)"),
                  title = "How to match rows:")
-  
-  common_columns <- intersect(colnames(old_data), colnames(new_data))
 
   if (choice == 1) {
     # Match by id
@@ -105,7 +105,7 @@ compare_dataframes <- function(new_data, old_data) {
 
     available_columns <- common_columns[common_columns != "id"]
     available_columns <- available_columns[!grepl("^age_min_|^age_max_|^is_|_year$", available_columns)]
-    available_columns <- available_columns[available_columns %in% numeric_var_list]
+    available_columns <- available_columns[available_columns %in% numeric_columns]
     print_it(paste("Numeric columns available:", paste(available_columns, collapse = ", ")), "yellow")
 
     columns_for_matching <- c()
@@ -151,18 +151,17 @@ compare_dataframes <- function(new_data, old_data) {
   }
 
   matched_data <- matched_data[!is.na(matched_data$old_row_index), ]
-  columns_to_compare <- intersect(colnames(new_data), colnames(old_data))
 
-  print_it(paste("Comparing", nrow(matched_data), "rows across", length(columns_to_compare), "columns"), "yellow")
+  print_it(paste("Comparing", nrow(matched_data), "rows across", length(common_columns), "columns"), "yellow")
 
   new_data_matched <- new_data[matched_data$new_row_index, ]
   old_data_matched <- old_data[matched_data$old_row_index, ]
 
-  for (column in columns_to_compare) {
+  for (column in common_columns) {
     new_values <- new_data_matched[[column]]
     old_values <- old_data_matched[[column]]
 
-    if (column %in% numeric_var_list) {
+    if (column %in% numeric_columns) {
       new_values <- as.numeric(new_values)
       old_values <- as.numeric(old_values)
     } else {
