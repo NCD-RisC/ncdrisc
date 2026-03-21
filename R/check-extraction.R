@@ -180,8 +180,9 @@ check_extraction <- function(dataset, new_extraction = TRUE,
     # in each pair c(A,B), check if A > B on average
     # Corrected by ABP March 2025 to avoid error caused by only one variable of the pairs available
 
-    # Current checks: SBP > DBP; Hip > Waist
-    check_list <- list(c("sbp", "dbp"), c("hip", "waist"))
+    # Current checks: SBP > DBP
+    # check_list <- list(c("sbp", "dbp"), c("hip", "waist"))  # removed hip/waist check as WHR is allowed >1
+    check_list <- list(c("sbp", "dbp"))
     for (pair in check_list) {
       vars1 <- sort(grep(paste0("^", pair[1], "(([0-9]+$)|($)|(_avg$))"), names(dat), value = TRUE))
       vars2 <- sort(grep(paste0("^", pair[2], "(([0-9]+$)|($)|(_avg$))"), names(dat), value = TRUE))
