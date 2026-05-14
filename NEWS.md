@@ -1,3 +1,9 @@
+# ncdrisc 0.0.4.98
+
+* Updated region names to country-list-2025 version
+* Added standard regional colour palettes and orders: `region_col`, `sregion_col`, `region_order`, `sregion_order`
+* Added world map shape file `world_map`
+
 # ncdrisc 0.0.4.97
 
 * Automatically add slash to end of file path in `save_extraction()`
