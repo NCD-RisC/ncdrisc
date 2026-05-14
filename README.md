@@ -3,21 +3,21 @@ This package contains standard functions used by the NCD Risk Factor Collaborati
 
 ### 0. Data objects
 
-* countrylist
+* `countrylist`
 NCD-RisC country, region and super-region names, 2025 version
-* region_col
+* `region_col`
 NCD-RisC standard regional colours
-* sregion_col
+* `sregion_col`
 NCD-RisC standard super-regional colours
-* region_order
+* `region_order`
 Standard order of regions
-* sregion_order
+* `sregion_order`
 Standard order of super-regions
-* std_names_list
+* `std_names_list`
 Standard variable names for extraction
-* high_altitude_countries
+* `high_altitude_countries`
 List of ISOs for countries that are considered high-altitude countries
-* world_map
+* `world_map`
 Standard shape file for world map
 
 ### 1. Data extraction
