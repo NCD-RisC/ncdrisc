@@ -8,6 +8,8 @@ library(devtools)
 # Standard country names
 countrylist <- read.csv("data-raw/country-list-2025.csv")
 use_data(countrylist, overwrite = TRUE)
+countrylist2023new <- read.csv("data-raw/country-list-2023-new.csv")
+use_data(countrylist2023new)
 
 # standard variable name list - the list should be updated separately
 std_names_list <- read.csv("data-raw/standard_variable_names.csv")

@@ -4,7 +4,9 @@ This package contains standard functions used by the NCD Risk Factor Collaborati
 ### 0. Data objects
 
 * `countrylist`
-NCD-RisC country, region and super-region names, 2025 version
+NCD-RisC country, region and super-region names, latest (2025) version
+* `countrylist2023new`
+NCD-RisC country, region and super-region names, 2023-new version
 * `region_col`
 NCD-RisC standard regional colours
 * `sregion_col`

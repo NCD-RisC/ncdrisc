@@ -1,6 +1,6 @@
 # ncdrisc 0.0.4.98
 
-* Updated region names to country-list-2025 version
+* Updated region names to country-list-2025 version in `countrylist`; old version retained in `countrylist2023new`
 * Added standard regional colour palettes and orders: `region_col`, `sregion_col`, `region_order`, `sregion_order`
 * Added world map shape file `world_map`
 
