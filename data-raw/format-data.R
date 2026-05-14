@@ -75,3 +75,7 @@ sregion_order <- c("High-income western",
                    "Sub-Saharan Africa")
 use_data(sregion_order)
 >>>>>>> Stashed changes
+
+# Add map shape file
+world_map <- readRDS('data-raw/World_map.RDS')
+use_data(world_map)
