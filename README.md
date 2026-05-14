@@ -18,7 +18,7 @@ Standard variable names for extraction
 * `high_altitude_countries`
 List of ISOs for countries that are considered high-altitude countries
 * `world_map`
-Standard shape file for world map
+Standard shape file for world map, created based on [Natural Earth](https://www.naturalearthdata.com/)
 
 ### 1. Data extraction
 
