@@ -6,8 +6,8 @@ library(devtools)
 # Delete the old data and run the script from the root folder of the package
 
 # Standard country names
-countrylist <- read.csv("data-raw/country-list-2023-new.csv")
-use_data(countrylist)
+countrylist <- read.csv("data-raw/country-list-2025.csv")
+use_data(countrylist, overwrite = TRUE)
 
 # standard variable name list - the list should be updated separately
 std_names_list <- read.csv("data-raw/standard_variable_names.csv")
@@ -16,8 +16,6 @@ use_data(std_names_list)
 # list of ISOs of high-altitude countries to be accounted for in haemoglobin data
 high_altitude_countries <- read.csv("data-raw/high_altitude_countries.csv")
 use_data(high_altitude_countries)
-<<<<<<< Updated upstream
-=======
 
 # example dataset for testing
 example_data <- read.csv("data-raw/USA NHANES 2017-2018.csv")
@@ -35,13 +33,13 @@ use_data(age_group_output2)
 # ncdrisc colour scheme
 ## Regional palette ##
 region_col <- c("#84C680", "#ADD9AA", "#FCC2C1", "#E31A1C", "#4B93C3", "#5BB356", "#FB9A99", "#FF7F00", "#1F78B4", "#B15928", "#C9E1EE", "#8763AE", "#E84749", "#B7D7E8", "#6A3D9A", "#FFA332", "#FBAEAD", "#33A02C", "#A6CEE3", "#FDD6D6")
-names(region_col) <- c("Andean Latin America","The Caribbean","Central and southern Africa","Central Asia","Central Europe","Central Latin America","East Africa","East Asia and the Pacific","Eastern Europe","South Asia", "High-income English-speaking countries","Melanesia","Middle East and north Africa","Northwestern Europe","Polynesia and Micronesia","Southeast Asia","West Africa","Southern Latin America","Southwestern Europe","Other sub-Saharan Africa")
-use_data(region_col)
+names(region_col) <- c("Andean Latin America","The Caribbean","Central and southern Africa","Central Asia","Central Europe","Central Latin America","East Africa","East Asia","Eastern Europe","South Asia", "High-income English-speaking countries","Melanesia","Middle East and north Africa","Northwestern Europe","Polynesia and Micronesia","Southeast Asia","West Africa","Southern Latin America","Southwestern Europe","Other sub-Saharan Africa")
+use_data(region_col, overwrite = TRUE)
 
 ## Super-regional palette ##
 sregion_col <- c("#1F78B4", "#E31A1C", "#FF7F00", "#A6CEE3", "#33A02C", "#6A3D9A", "#B15928", "#FB9A99")
-names(sregion_col) <- c("Central and eastern Europe","Central Asia, Middle East and north Africa","East and southeast Asia and the Pacific","High-income western","Latin America and the Caribbean","Pacific island nations","South Asia","Sub-Saharan Africa")
-use_data(sregion_col)
+names(sregion_col) <- c("Central and eastern Europe","Central Asia, Middle East and north Africa","East and southeast Asia","High-income western","Latin America and the Caribbean","Pacific island nations","South Asia","Sub-Saharan Africa")
+use_data(sregion_col, overwrite = TRUE)
 
 region_order <- c("High-income English-speaking countries",
                       "Northwestern Europe",
@@ -52,7 +50,7 @@ region_order <- c("High-income English-speaking countries",
                       "Central Latin America",
                       "Andean Latin America",
                       "The Caribbean",
-                      "East Asia and the Pacific",
+                      "East Asia",
                       "Southeast Asia",
                       "South Asia",
                       "Central Asia",
@@ -63,18 +61,17 @@ region_order <- c("High-income English-speaking countries",
                       "West Africa",
                       "Central and southern Africa",
                       "Other sub-Saharan Africa")
-use_data(region_order)
+use_data(region_order, overwrite = TRUE)
 
 sregion_order <- c("High-income western",
                    "Central and eastern Europe",
                    "Latin America and the Caribbean",
-                   "East and southeast Asia and the Pacific",
+                   "East and southeast Asia",
                    "South Asia",
                    "Pacific island nations",
                    "Central Asia, Middle East and north Africa",
                    "Sub-Saharan Africa")
-use_data(sregion_order)
->>>>>>> Stashed changes
+use_data(sregion_order, overwrite = TRUE)
 
 # Add map shape file
 world_map <- readRDS('data-raw/World_map.RDS')
