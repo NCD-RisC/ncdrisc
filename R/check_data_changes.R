@@ -20,7 +20,14 @@ read_extracted_df <- function(filename, target_dir = NULL) {
   # Check if CSV file exists
   if (file.exists(csv_path)) {
     tryCatch({
-      return(read.csv(csv_path))
+      df_latin1 <- suppressWarnings(read.csv(csv_path, fileEncoding = "latin1"))
+      df_utf8 <- suppressWarnings(read.csv(csv_path, fileEncoding = "UTF-8"))
+      
+      if (nrow(df_utf8) > nrow(df_latin1)) {
+        return(df_utf8)
+      } else {
+        return(df_latin1)
+      }
     }, error = function(e) {
       return(NULL)
     })
@@ -32,22 +39,25 @@ read_extracted_df <- function(filename, target_dir = NULL) {
 
 #' Function to compare two dataframes for differences
 #'
-#' This function performs comprehensive comparison between new and existing extraction data.
-#' It compares row counts, column names, and performs detailed value-by-value comparison.
+#' This function compares the data being extracted against previously extracted data.
+#' It:
+#' - compares the number of rows in the two data frames
+#' - compares column names and logs which ones were added/removed
+#' - matches data line-by-line and compares every value.
 #'
-#' @param new_data data frame of new extraction data
+#' @param new_data data frame of the data being extracted
 #' @param comparison_data data frame of previously extracted data
 compare_dataframes <- function(new_data, comparison_data) {
 
-  # flag for if any change was found
   any_change_found <- FALSE
 
-  # Store original comparison_data for debugging
-  fixed_data <<- comparison_data
-
-  # Get numerical variable names
-  numeric_var_list <- as.character(std_names_list$Name[which(std_names_list$Type == "numeric")])
-
+  # Convert character columns to latin1
+  for (col in names(new_data)) {
+    if (is.character(new_data[[col]])) new_data[[col]] <- iconv(new_data[[col]], from = "UTF-8", to = "latin1", sub = "")
+  }
+  for (col in names(comparison_data)) {
+    if (is.character(comparison_data[[col]])) comparison_data[[col]] <- iconv(comparison_data[[col]], from = "UTF-8", to = "latin1", sub = "")
+  }
   # Remove fully empty columns from both datasets
   new_data_non_empty_cols <- sapply(new_data, function(col) !all(is.na(col)))
   comparison_non_empty_cols <- sapply(comparison_data, function(col) !all(is.na(col)))
@@ -59,15 +69,9 @@ compare_dataframes <- function(new_data, comparison_data) {
   # These are written when calling save_extraction()
   comparison_data <- comparison_data[, !colnames(comparison_data) %in% c("user", "ncdrisc_version"), drop = FALSE]
 
-  # Compare row counts
-  new_row_count <- nrow(new_data)
-  old_row_count <- nrow(comparison_data)
-
-  if (new_row_count != old_row_count) {
-    any_change_found <- TRUE
-    print_it("CAUTION - inconsistent number of rows:", "br_violet")
-    print_it(paste("New:", new_row_count, "vs Old:", old_row_count), indent = 2)
-  }
+  std_names_list <- ncdrisc::std_names_list
+  common_columns <- intersect(colnames(new_data), colnames(comparison_data))
+  numeric_var_list <- as.character(std_names_list$Name[which(std_names_list$Type == "numeric")])
 
   # Identify columns that are new or have been removed
   new_file_columns <- colnames(new_data)
@@ -75,7 +79,6 @@ compare_dataframes <- function(new_data, comparison_data) {
 
   new_columns <- setdiff(new_file_columns, old_file_columns)
   removed_columns <- setdiff(old_file_columns, new_file_columns)
-
   if (length(new_columns) > 0) {
     any_change_found <- TRUE
     print_it("CAUTION - added columns:", "br_violet")
@@ -84,63 +87,87 @@ compare_dataframes <- function(new_data, comparison_data) {
     # Save added columns dataframe to workspace to then run summary(added_columns) from the main script
     added_columns <<- new_data[, new_columns, drop = FALSE]
   }
-
   if (length(removed_columns) > 0) {
     any_change_found <- TRUE
     print_it("CAUTION - removed columns:", "br_violet")
     print_it(removed_columns, indent = 2)
   }
 
-  # Order datasets before value-by-value comparison
-  id_column <- "id"
+  # Ask user how to match rows
+  choice <- menu(c("id (use if there is a common id column in the data being extracted and in the previous extraction)",
+                   "auto (use if there is no common id column; may be slow with >10,000 rows)"),
+                 title = "How to match rows:")
 
-  if (id_column %in% colnames(new_data) && id_column %in% colnames(comparison_data)) {
-    # Both datasets have ID columns - check if IDs match
-    new_ids <- sort(new_data[[id_column]])
-    old_ids <- sort(comparison_data[[id_column]])
+  if (choice == 1) {
+    # Match by id
+    if (!"id" %in% common_columns) {
+      print_it("No id column found", "br_red")
+      return(any_change_found)
+    }
+    columns_for_matching <- "id"
 
-    # Determine sorting strategy
-    new_data_ordered <- NULL
-    comparison_data_ordered <- NULL
+  } else {
+    # Find columns that uniquely identify rows
+    # Exclude "id" and metadata columns
 
-    if (identical(new_ids, old_ids)) {
-      # STRATEGY A: Sort by ID order
-      new_data_ordered <- new_data[order(new_data[[id_column]]), ]
-      comparison_data_ordered <- comparison_data[order(comparison_data[[id_column]]), ]
+    available_columns <- common_columns[common_columns != "id"]
+    available_columns <- available_columns[!grepl("^age_min_|^age_max_|^is_|_year$", available_columns)]
+    available_columns <- available_columns[available_columns %in% numeric_var_list]
 
-    } else {
-      # STRATEGY B: Fall back to sorting by columns with matching means
-      common_columns <- intersect(colnames(new_data), colnames(comparison_data))
-      matching_mean_columns <- c()
+    columns_for_matching <- c()
+    done <- FALSE
 
-      for (column_name in common_columns) {
-        if (is.numeric(new_data[[column_name]]) && is.numeric(comparison_data[[column_name]])) {
-          new_mean <- mean(new_data[[column_name]], na.rm = TRUE)
-          old_mean <- mean(comparison_data[[column_name]], na.rm = TRUE)
-          mean_diff <- abs(new_mean - old_mean)
+    for (column in available_columns) {
+      columns_for_matching <- c(columns_for_matching, column)
+      current_subset <- comparison_data[, columns_for_matching, drop = FALSE]
 
-          if (mean_diff == 0) {
-            matching_mean_columns <- c(matching_mean_columns, column_name)
-          }
-        }
-      }
-
-      if (length(matching_mean_columns) > 0) {
-        new_data_ordered <- new_data[do.call(order, new_data[matching_mean_columns]), ]
-        comparison_data_ordered <- comparison_data[do.call(order, comparison_data[matching_mean_columns]), ]
+      if (anyDuplicated(current_subset) == 0) {
+        done <- TRUE
+        break
       }
     }
 
-    # Perform value-by-value comparison
-    if (!is.null(new_data_ordered) && !is.null(comparison_data_ordered)) {
-      # Get columns that exist in both datasets for comparison
-      common_columns <- intersect(colnames(new_data_ordered), colnames(comparison_data_ordered))
-      min_length <- min(nrow(new_data_ordered), nrow(comparison_data_ordered))
+    if (!done) {
+      print_it("Could not automatically match rows - rows are not unique", "br_red")
+      print_it("This can be expected with large datasets (>10,000 rows)", indent = 2)
+      print_it("If that is not the case, please check if having duplicate rows in the data being extracted is expected", indent = 2)
+      print_it("If there is no common id column and automatic matching fails, consistency with previous extraction should be carefully checked manually", indent = 2)
+      debug_matching_subset <<- current_subset
+      return(any_change_found)
+    }
+  }
+  
+  # Semi-join: keep only rows in new_data that have a match in comparison_data, and vice versa
+  new_keys <- do.call(paste, new_data[, columns_for_matching, drop = FALSE])
+  old_keys <- do.call(paste, comparison_data[, columns_for_matching, drop = FALSE])
+
+  new_in_old <- new_keys %in% old_keys
+  old_in_new <- old_keys %in% new_keys
+
+  new_rows <- sum(!new_in_old)
+  removed_rows <- sum(!old_in_new)
+  if (new_rows > 0) {
+    any_change_found <- TRUE
+    print_it(paste("CAUTION -", new_rows, "added rows"), "br_violet")
+  }
+  if (removed_rows > 0) {
+    any_change_found <- TRUE
+    print_it(paste("CAUTION -", removed_rows, "removed rows"), "br_violet")
+  }
+
+  new_data_ordered <- new_data[new_in_old, ]
+  comparison_data_ordered <- comparison_data[old_in_new, ]
+
+  # Sort both by matching columns
+  new_data_ordered <- new_data_ordered[do.call(order, new_data_ordered[, columns_for_matching, drop = FALSE]), ]
+  comparison_data_ordered <- comparison_data_ordered[do.call(order, comparison_data_ordered[, columns_for_matching, drop = FALSE]), ]
+
+  print_it(paste("Comparing", nrow(new_data_ordered), "rows across", length(common_columns), "columns"), "yellow")
 
       # Compare each common column value-by-value
       for (column_name in common_columns) {
-        new_column_data <- new_data_ordered[[column_name]][1:min_length]
-        old_column_data <- comparison_data_ordered[[column_name]][1:min_length]
+        new_column_data <- new_data_ordered[[column_name]]
+        old_column_data <- comparison_data_ordered[[column_name]]
 
         # Standardize data types for this column based on std_names_list
         if (column_name %in% numeric_var_list) {
@@ -204,11 +231,7 @@ compare_dataframes <- function(new_data, comparison_data) {
             value_diff_indices <- which(both_not_na & abs(new_column_data - old_column_data) > 1e-6)
           } else if (!new_is_numeric && !old_is_numeric) {
             # Both non-numeric: exact comparison
-            for (i in which(both_not_na)) {
-              if (new_column_data[i] != old_column_data[i]) {
-                value_diff_indices <- c(value_diff_indices, i)
-              }
-            }
+            value_diff_indices <- which(both_not_na & new_column_data != old_column_data)
           }
 
           if (length(value_diff_indices) > 0) {
@@ -226,8 +249,6 @@ compare_dataframes <- function(new_data, comparison_data) {
           }
         }
       }
-    }
-  }
 
   return(any_change_found)
 }
