@@ -161,6 +161,7 @@ print_message <- function(var_name, clean_list, var, id_study, message = NULL) {
   if (length(clean_list)==0) {
     cat("  No records cleaned\n")
   } else {
+    id_study <- as.factor(id_study)  # so that all studies appear even if no record was cleaned
     cln.table <- table(id_study[clean_list])/table(id_study[!is.na(var)])*100
     print(sort(round(cln.table[which(cln.table!=Inf&cln.table>0)],2), decreasing=TRUE))
     cat("\n")
