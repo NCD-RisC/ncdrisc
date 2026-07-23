@@ -2,4 +2,5 @@
 
 export(check_data_changes)
 export(check_extraction)
+export(remove_followups)
 export(save_extraction)
