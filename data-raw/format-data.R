@@ -19,6 +19,12 @@ use_data(std_names_list)
 high_altitude_countries <- read.csv("data-raw/high_altitude_countries.csv")
 use_data(high_altitude_countries)
 
+# follow-up status of studies, used by `remove_followups()` - the tracker should be updated separately
+# export the "Tracker" sheet of the latest "Follow-ups tracker" workbook to the csv below,
+# using the column names id_study, year, fu and cohort_group_id
+followups_tracker <- read.csv("data-raw/followups-tracker.csv")
+use_data(followups_tracker, overwrite = TRUE)
+
 # example dataset for testing
 example_data <- read.csv("data-raw/USA NHANES 2017-2018.csv")
 use_data(example_data)

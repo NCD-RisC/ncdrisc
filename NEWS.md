@@ -1,3 +1,8 @@
+# ncdrisc 0.0.4.99
+
+* Added `remove_followups()` function to drop follow-up studies from a dataset
+* Added the follow-up tracker as `followups_tracker`
+
 # ncdrisc 0.0.4.98
 
 * Updated region names to country-list-2025 version in `countrylist`; old version retained in `countrylist2023new`
