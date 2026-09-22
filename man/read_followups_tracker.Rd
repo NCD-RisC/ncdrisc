@@ -7,13 +7,13 @@
 read_followups_tracker(tracker = NULL)
 }
 \arguments{
-\item{tracker}{data frame of the follow-up tracker to be used; default is the tracker packaged with \code{ncdrisc}}
+\item{tracker}{data frame of the follow-up tracker to be used; default reads the "Follow-ups tracker" workbook from the S: drive}
 }
 \value{
 data frame of the follow-up tracker, with the columns \code{id_study}, \code{year}, \code{fu} and \code{cohort_group_id}
 }
 \description{
 This function returns the "Follow-ups tracker" with standardised column types.
-By default the version packaged with \code{ncdrisc} is used; a data frame can be supplied
-to use a more recent version of the tracker.
+By default the tracker is read from the "Follow-ups tracker" workbook on the S:
+drive; a data frame can be supplied to use a different version of the tracker.
 }

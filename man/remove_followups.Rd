@@ -9,7 +9,7 @@ remove_followups(data, tracker = NULL)
 \arguments{
 \item{data}{data frame of studies to be filtered: can be a single study or multiple studies}
 
-\item{tracker}{data frame of the follow-up tracker to be used; default is the tracker packaged with \code{ncdrisc}}
+\item{tracker}{data frame of the follow-up tracker to be used; default reads the "Follow-ups tracker" workbook from the S: drive}
 }
 \value{
 data frame of \code{data} with the pure follow-up studies removed

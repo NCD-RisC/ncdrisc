@@ -1,7 +1,7 @@
 # ncdrisc 0.0.4.99
 
 * Added `remove_followups()` function to drop follow-up studies from a dataset
-* Added the follow-up tracker as `followups_tracker`
+* Added `read_followups_tracker()` to read the "Follow-ups tracker" workbook from the S: drive
 
 # ncdrisc 0.0.4.98
 

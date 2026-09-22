@@ -3,15 +3,23 @@
 #' Function to read the follow-up tracker
 #'
 #' This function returns the "Follow-ups tracker" with standardised column types.
-#' By default the version packaged with `ncdrisc` is used; a data frame can be supplied
-#' to use a more recent version of the tracker.
+#' By default the tracker is read from the "Follow-ups tracker" workbook on the S:
+#' drive; a data frame can be supplied to use a different version of the tracker.
 #'
-#' @param tracker data frame of the follow-up tracker to be used; default is the tracker packaged with `ncdrisc`
+#' @param tracker data frame of the follow-up tracker to be used; default reads the "Follow-ups tracker" workbook from the S: drive
 #' @return data frame of the follow-up tracker, with the columns `id_study`, `year`, `fu` and `cohort_group_id`
 read_followups_tracker <- function(tracker = NULL) {
 
   if (is.null(tracker)) {
-    tr <- suppressWarnings(ncdrisc::followups_tracker)
+    # Read the "Follow-ups tracker" from the mapped drive, handling Mac and Windows roots
+    if (.Platform$OS.type == "windows") {
+      base <- "S:/HeightProject"
+    } else {
+      base <- "/Volumes/HeightProject"
+    }
+    tracker_path <- file.path(base, "Original dataset", "Data", "Surveys",
+                              "Followup studies", "Follow-ups tracker.xlsx")
+    tr <- suppressWarnings(readxl::read_excel(tracker_path))
   } else if (is.data.frame(tracker)) {
     tr <- tracker
   } else {
@@ -25,7 +33,7 @@ read_followups_tracker <- function(tracker = NULL) {
   if (length(missing_cols) > 0) {
     print_it("CHECK - the following columns are missing from the follow-up tracker:", "br_red")
     print_it(missing_cols, indent = 2)
-    stop("Update `data-raw/followups-tracker.csv` from the latest tracker and rerun `data-raw/format-data.R`, or pass an up-to-date tracker to `tracker`.")
+    stop("Update the \"Follow-ups tracker\" workbook so it holds these columns, or pass an up-to-date tracker to `tracker`.")
   }
 
   # Standardise column types
@@ -50,7 +58,7 @@ read_followups_tracker <- function(tracker = NULL) {
 #' - prints out the studies in `data` that the tracker does not categorise.
 #'
 #' @param data data frame of studies to be filtered: can be a single study or multiple studies
-#' @param tracker data frame of the follow-up tracker to be used; default is the tracker packaged with `ncdrisc`
+#' @param tracker data frame of the follow-up tracker to be used; default reads the "Follow-ups tracker" workbook from the S: drive
 #' @return data frame of `data` with the pure follow-up studies removed
 #' @export
 remove_followups <- function(data, tracker = NULL) {
@@ -88,12 +96,21 @@ remove_followups <- function(data, tracker = NULL) {
     print_it(fu_with_ref, indent = 2)
   }
 
-  # Studies that the tracker does not categorise: all kept
-  uncategorised <- setdiff(data_ids, tr$id_study[which(!is.na(tr$fu) & tr$fu != "")])
-  if (length(uncategorised) > 0) {
-    print_it(paste0("CAUTION - ", length(uncategorised), " studies in the data are not categorised in the follow-up tracker: they were all kept"), "br_violet")
-    print_it(uncategorised[1:min(20, length(uncategorised))], indent = 2)
-    if (length(uncategorised) > 20) print_it(paste0("... and ", length(uncategorised) - 20, " more"), indent = 2)
+  # Studies the tracker does not categorise: all kept, reported in two groups
+  # Case A: present in the follow-up tracker but with a blank/NA follow-up category
+  in_tracker_uncat <- unique(tr$id_study[which(is.na(tr$fu) | tr$fu == "")])
+  if (length(in_tracker_uncat) > 0) {
+    print_it(paste0("CAUTION - ", length(in_tracker_uncat), " studies are in the follow-up tracker but not categorised: they were all kept for now, but these should all be assessed and marked in the tracker before proceeding"), "br_violet")
+    print_it(in_tracker_uncat[1:min(20, length(in_tracker_uncat))], indent = 2)
+    if (length(in_tracker_uncat) > 20) print_it(paste0("... and ", length(in_tracker_uncat) - 20, " more"), indent = 2)
+  }
+
+  # Case B: not present in the follow-up tracker at all
+  not_in_tracker <- setdiff(data_ids, tr$id_study)
+  if (length(not_in_tracker) > 0) {
+    print_it(paste0("CAUTION - ", length(not_in_tracker), " studies in the data are not in the follow-up tracker at all: they were all kept for now, but these should all be assessed and marked in the tracker before proceeding"), "br_violet")
+    print_it(not_in_tracker[1:min(20, length(not_in_tracker))], indent = 2)
+    if (length(not_in_tracker) > 20) print_it(paste0("... and ", length(not_in_tracker) - 20, " more"), indent = 2)
   }
 
   print_it("DONE", "yellow")
