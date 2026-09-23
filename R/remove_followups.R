@@ -18,7 +18,7 @@ read_followups_tracker <- function(tracker = NULL) {
       base <- "/Volumes/HeightProject"
     }
     tracker_path <- file.path(base, "Original dataset", "Data", "Surveys",
-                              "Followup studies", "Follow-ups tracker.xlsx")
+                              "__Follow-up studies", "Follow-ups tracker.xlsx")
     tr <- suppressWarnings(readxl::read_excel(tracker_path))
   } else if (is.data.frame(tracker)) {
     tr <- tracker
