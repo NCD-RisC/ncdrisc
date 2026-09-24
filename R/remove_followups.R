@@ -7,10 +7,16 @@
 #' drive; a data frame can be supplied to use a different version of the tracker.
 #'
 #' @param tracker data frame of the follow-up tracker to be used; default reads the "Follow-ups tracker" workbook from the S: drive
+#' @param trace_dir folder into which a timestamped, byte-for-byte copy of the tracker workbook is saved for traceability; required when the tracker is read from the S: drive (i.e. `tracker` is NULL), ignored when a `tracker` data frame is supplied
 #' @return data frame of the follow-up tracker, with the columns `id_study`, `year`, `fu` and `cohort_group_id`
-read_followups_tracker <- function(tracker = NULL) {
+read_followups_tracker <- function(tracker = NULL, trace_dir = NULL) {
 
   if (is.null(tracker)) {
+    # Fatal error: a folder is needed to keep a traceable copy of the tracker used
+    if (is.null(trace_dir)) {
+      stop("Supply `trace_dir`: a folder into which a timestamped copy of the tracker workbook is saved for traceability.")
+    }
+
     # Read the "Follow-ups tracker" from the mapped drive, handling Mac and Windows roots
     if (.Platform$OS.type == "windows") {
       base <- "S:/HeightProject"
@@ -19,6 +25,17 @@ read_followups_tracker <- function(tracker = NULL) {
     }
     tracker_path <- file.path(base, "Original dataset", "Data", "Surveys",
                               "__Follow-up studies", "Follow-ups tracker.xlsx")
+
+    # Keep a byte-for-byte copy of the exact workbook used, under a timestamped name so runs are never overwritten
+    dir.create(trace_dir, recursive = TRUE, showWarnings = FALSE)
+    stem <- tools::file_path_sans_ext(basename(tracker_path))
+    dest <- file.path(trace_dir, paste0(stem, "_", format(Sys.time(), "%Y-%m-%d_%H%M%S"), ".xlsx"))
+    copied <- file.copy(tracker_path, dest, overwrite = FALSE)
+    if (!copied) {
+      stop(paste0("Could not save a traceability copy of the tracker workbook from ", tracker_path, " to ", dest))
+    }
+    print_it(paste("Traceability copy of the tracker saved to:", dest), "yellow")
+
     tr <- suppressWarnings(readxl::read_excel(tracker_path))
   } else if (is.data.frame(tracker)) {
     tr <- tracker
@@ -59,9 +76,10 @@ read_followups_tracker <- function(tracker = NULL) {
 #'
 #' @param data data frame of studies to be filtered: can be a single study or multiple studies
 #' @param tracker data frame of the follow-up tracker to be used; default reads the "Follow-ups tracker" workbook from the S: drive
+#' @param trace_dir folder into which a timestamped, byte-for-byte copy of the tracker workbook is saved for traceability; required when the tracker is read from the S: drive (i.e. `tracker` is NULL), ignored when a `tracker` data frame is supplied
 #' @return data frame of `data` with the pure follow-up studies removed
 #' @export
-remove_followups <- function(data, tracker = NULL) {
+remove_followups <- function(data, tracker = NULL, trace_dir = NULL) {
 
   # Fatal error: no id_study column
   if (!"id_study" %in% names(data)) stop("File missing id_study")
@@ -71,7 +89,7 @@ remove_followups <- function(data, tracker = NULL) {
   n_before <- length(data_ids)
 
   # Open the follow-up tracker and keep only the studies that are in the data
-  tr <- read_followups_tracker(tracker)
+  tr <- read_followups_tracker(tracker, trace_dir)
   tr <- tr[tr$id_study %in% data_ids, , drop = FALSE]
 
   # First (earliest) study of each cohort group present in the data, keeping ties

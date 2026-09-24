@@ -4,12 +4,14 @@
 \alias{remove_followups}
 \title{Function to remove follow-up studies from a dataset}
 \usage{
-remove_followups(data, tracker = NULL)
+remove_followups(data, tracker = NULL, trace_dir = NULL)
 }
 \arguments{
 \item{data}{data frame of studies to be filtered: can be a single study or multiple studies}
 
 \item{tracker}{data frame of the follow-up tracker to be used; default reads the "Follow-ups tracker" workbook from the S: drive}
+
+\item{trace_dir}{folder into which a timestamped, byte-for-byte copy of the tracker workbook is saved for traceability; required when the tracker is read from the S: drive (i.e. \code{tracker} is NULL), ignored when a \code{tracker} data frame is supplied}
 }
 \value{
 data frame of \code{data} with the pure follow-up studies removed

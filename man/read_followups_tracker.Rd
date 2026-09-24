@@ -4,10 +4,12 @@
 \alias{read_followups_tracker}
 \title{Function to read the follow-up tracker}
 \usage{
-read_followups_tracker(tracker = NULL)
+read_followups_tracker(tracker = NULL, trace_dir = NULL)
 }
 \arguments{
 \item{tracker}{data frame of the follow-up tracker to be used; default reads the "Follow-ups tracker" workbook from the S: drive}
+
+\item{trace_dir}{folder into which a timestamped, byte-for-byte copy of the tracker workbook is saved for traceability; required when the tracker is read from the S: drive (i.e. \code{tracker} is NULL), ignored when a \code{tracker} data frame is supplied}
 }
 \value{
 data frame of the follow-up tracker, with the columns \code{id_study}, \code{year}, \code{fu} and \code{cohort_group_id}
