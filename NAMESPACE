@@ -2,5 +2,13 @@
 
 export(check_data_changes)
 export(check_extraction)
+export(clean_age_range)
+export(clean_categorical)
+export(clean_continuous)
+export(clean_data)
+export(clean_data_index)
+export(convert_unit)
+export(make_age_group)
+export(make_age_group_anthro)
 export(remove_followups)
 export(save_extraction)

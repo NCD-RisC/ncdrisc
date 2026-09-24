@@ -1,3 +1,7 @@
+# ncdrisc 0.0.5.91 & 0.0.5.92
+
+* Add `clean_data()` functions and `make_age_group()` function
+
 # ncdrisc 0.0.4.99
 
 * Added `remove_followups()` function to drop follow-up studies from a dataset
