@@ -19,7 +19,7 @@ read_followups_tracker <- function(tracker = NULL, trace_dir = NULL) {
 
     # Read the "Follow-ups tracker" from the mapped drive, handling Mac and Windows roots
     if (.Platform$OS.type == "windows") {
-      base <- "S:/HeightProject"
+      base <- "S:/Projects/HeightProject"
     } else {
       base <- "/Volumes/HeightProject"
     }
