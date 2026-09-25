@@ -54,6 +54,15 @@ read_followups_tracker <- function(tracker = NULL, trace_dir = NULL) {
     print_it(paste("Traceability copy of the tracker saved to:", dest), "yellow")
 
     tr <- suppressWarnings(readxl::read_excel(tracker_path))
+
+    # Map the workbook's real headers to the names the rest of the code expects.
+    # Only headers that are present are renamed; any other columns are left untouched.
+    header_map <- c("Study ID"        = "id_study",
+                    "Year"            = "year",
+                    "FU"              = "fu",
+                    "Cohort_group_id" = "cohort_group_id")
+    to_rename <- names(header_map)[names(header_map) %in% names(tr)]
+    names(tr)[match(to_rename, names(tr))] <- header_map[to_rename]
   } else if (is.data.frame(tracker)) {
     tr <- tracker
   } else {
