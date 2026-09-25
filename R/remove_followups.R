@@ -26,13 +26,30 @@ read_followups_tracker <- function(tracker = NULL, trace_dir = NULL) {
     tracker_path <- file.path(base, "Original dataset", "Data", "Surveys",
                               "__Follow-up studies", "Follow-ups tracker.xlsx")
 
+    # Fatal error: the tracker workbook is not where it should be (mapped drive not connected / path wrong)
+    if (!file.exists(tracker_path)) {
+      stop(paste0("The tracker workbook was not found at ", tracker_path, ". Check the mapped drive is connected and the path is correct."))
+    }
+
     # Keep a byte-for-byte copy of the exact workbook used, under a timestamped name so runs are never overwritten
-    dir.create(trace_dir, recursive = TRUE, showWarnings = FALSE)
+    dir_ok <- dir.create(trace_dir, recursive = TRUE, showWarnings = FALSE) || dir.exists(trace_dir)
+    if (!dir_ok) {
+      stop(paste0("Could not create the traceability folder: ", trace_dir))
+    }
     stem <- tools::file_path_sans_ext(basename(tracker_path))
     dest <- file.path(trace_dir, paste0(stem, "_", format(Sys.time(), "%Y-%m-%d_%H%M%S"), ".xlsx"))
-    copied <- file.copy(tracker_path, dest, overwrite = FALSE)
+
+    # copy.mode = FALSE avoids copying POSIX permissions, which fails on SMB/network drives (e.g. mapped S:)
+    copy_warn <- NULL
+    copied <- withCallingHandlers(
+      file.copy(tracker_path, dest, overwrite = FALSE, copy.mode = FALSE, copy.date = TRUE),
+      warning = function(w) { copy_warn <<- conditionMessage(w); invokeRestart("muffleWarning") }
+    )
     if (!copied) {
-      stop(paste0("Could not save a traceability copy of the tracker workbook from ", tracker_path, " to ", dest))
+      stop(paste0("Could not save a traceability copy of the tracker workbook from ", tracker_path,
+                  " to ", dest,
+                  if (!is.null(copy_warn)) paste0(" (", copy_warn, ")") else "",
+                  ". Check the file is not open in Excel and that you can write to the folder."))
     }
     print_it(paste("Traceability copy of the tracker saved to:", dest), "yellow")
 
