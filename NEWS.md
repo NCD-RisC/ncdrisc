@@ -1,3 +1,12 @@
+# ncdrisc 0.0.5.91 & 0.0.5.92
+
+* Add `clean_data()` functions and `make_age_group()` function
+
+# ncdrisc 0.0.4.99
+
+* Added `remove_followups()` function to drop follow-up studies from a dataset
+* Added `read_followups_tracker()` to read the "Follow-ups tracker" workbook from the S: drive
+
 # ncdrisc 0.0.4.98
 
 * Updated region names to country-list-2025 version in `countrylist`; old version retained in `countrylist2023new`
