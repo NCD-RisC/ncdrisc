@@ -14,18 +14,39 @@ remove_followups(data, tracker = NULL, trace_dir = NULL)
 \item{trace_dir}{folder into which a timestamped, byte-for-byte copy of the tracker workbook is saved for traceability; required when the tracker is read from the S: drive (i.e. \code{tracker} is NULL), ignored when a \code{tracker} data frame is supplied}
 }
 \value{
-data frame of \code{data} with the pure follow-up studies removed
+data frame of \code{data} with the follow-up studies and the returning participants removed.
+What was removed, and what needs attention, is recorded in the \code{"followups"} attribute of the
+result: a list with the character vectors \code{pure_follow_ups}, \code{unlinkable_waves},
+\code{uncategorised}, \code{not_in_tracker} and \code{no_linking_given}, and the named integer vector
+\code{returners_by_wave}.
 }
 \description{
-This function removes follow-up studies from a dataset, using the "Follow-ups tracker".
+This function removes from a dataset everyone who is already counted in an earlier wave of their
+own cohort, using the "Follow-ups tracker".
+}
+\details{
 The tracker categorises each study in the column \code{FU} as \code{"FU"} (pure follow-up),
 \code{"FU_w_refreshers"} (follow-up with refreshers), \code{"nonFU"} (non-follow-up or baseline),
-or leaves it blank when the study has not been categorised. The function:
+or leaves it blank when the study has not been categorised. Studies of one cohort share a
+\code{Cohort_group_id}. The \strong{first study of a cohort group} - the earliest wave of it present in
+\code{data}, whatever its category - is always kept in full, because nobody in it is counted twice.
+
+A pure follow-up re-examines the earlier wave's participants and nobody else, so the whole study
+is removed. A follow-up with refreshers also recruits people who have never taken part, so only
+its returning participants are removed, and the tracker says how to find them in the column
+\verb{Refresher linking}:
 \itemize{
-\item removes the pure follow-ups, except those that are the first study (earliest wave held,
-including non-follow-ups) of their cohort group among the studies present in \code{data};
-\item keeps the follow-ups with refreshers, but prints them out so they can be dealt with
-individually - again except those that are the first study of their cohort group;
-\item prints out the studies in \code{data} that the tracker does not categorise.
+\item \code{"id"} - a returning participant keeps the id they held before, so the returners are the rows
+whose \code{id} appears in an earlier wave of the same cohort group. Needs an \code{id} column in \code{data}.
+\item \code{"age"} - the ids do not carry across waves, but the returners occupy an age range that the
+refreshers do not, given by \verb{Returning age min} and \verb{Returning age max}. The range is applied to
+the whole wave: every row inside it is a returner and every row outside it is not. A blank
+\verb{Returning age max} means no upper bound. Needs an \code{age} column in \code{data}.
+\item \code{"unlinkable"} - the returners cannot be identified either way, so the whole study is removed.
 }
+
+\verb{Refresher linking} is only ever consulted for a follow-up with refreshers that is not the first
+study of its cohort group; it is ignored, and may be left blank, everywhere else. Studies the
+tracker does not categorise, and refresher waves it does not say how to link, are all kept and
+printed out.
 }

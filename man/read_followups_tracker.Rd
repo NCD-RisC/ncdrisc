@@ -12,7 +12,8 @@ read_followups_tracker(tracker = NULL, trace_dir = NULL)
 \item{trace_dir}{folder into which a timestamped, byte-for-byte copy of the tracker workbook is saved for traceability; required when the tracker is read from the S: drive (i.e. \code{tracker} is NULL), ignored when a \code{tracker} data frame is supplied}
 }
 \value{
-data frame of the follow-up tracker, with the columns \code{id_study}, \code{year}, \code{fu} and \code{cohort_group_id}
+data frame of the follow-up tracker, with the columns \code{id_study}, \code{year}, \code{fu},
+\code{cohort_group_id}, \code{refresher_linking}, \code{returning_age_min} and \code{returning_age_max}
 }
 \description{
 This function returns the "Follow-ups tracker" with standardised column types.

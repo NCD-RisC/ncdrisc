@@ -1,3 +1,18 @@
+# ncdrisc 0.0.5.93
+
+* `remove_followups()` now also removes the participants returning to a follow-up wave with
+  refreshers, so a caller no longer has to deal with those waves individually. The tracker says how
+  to find them, in a new column `Refresher linking`: `id` (the returners keep the id they held in an
+  earlier wave of their cohort group), `age` (the ids do not carry across, so the returners are the
+  rows inside `Returning age min` to `Returning age max`) or `unlinkable` (they cannot be found, so
+  the whole wave goes). These three columns are now required in the tracker.
+* `remove_followups()` records what it removed, and what still needs a decision, in the `"followups"`
+  attribute of its result, so a caller can log the exclusions without repeating the work.
+* A refresher wave is only ever acted on while an earlier wave of its cohort group is also present:
+  nobody in the first wave of a cohort is counted twice, so nothing is removed from it.
+* `read_followups_tracker()` now reads the workbook as text and coerces it, so a column left blank
+  for more than 1000 rows is no longer read as all `NA`.
+
 # ncdrisc 0.0.5.91 & 0.0.5.92
 
 * Add `clean_data()` functions and `make_age_group()` function
